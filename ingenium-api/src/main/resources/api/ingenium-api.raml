@@ -1,0 +1,32 @@
+#%RAML 1.0
+title: ingenium
+description: This is a Ingenium API
+
+/createApplication:
+ post:
+  description: To post policy details to Ingenium
+  body:
+    application/json:
+      example: !include example.raml
+  responses:
+    200:
+      body:
+        application/json:
+          example: |
+           message: "data is posted"
+
+/getIngeniumDetails:
+  get:
+   description: To retrieve policy details from Ingenium
+   queryParameters:
+      IngeniumPolicyID:
+        displayName: Ingenium Policy ID
+        type: string
+        required: true
+   
+   responses:
+      200:
+        body:
+          application/json:
+            example: !include getIngenium-example.raml
+            

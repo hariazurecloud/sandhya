@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="xml" format="xml">
+      <types:example format="xml" element="TXLife" location="examples/82b57149-9f59-455b-8235-7bf3d2ebdd57 (1).xml"/>
+    </types:type>
+    <types:type name="json" format="json">
+      <types:shape format="weave" example="examples/output json.txt"><![CDATA[%dw 2.0
+
+type json = {|
+  Person: Array<{|    ID: String,     FirstName: String,     MiddleName: Null,     LastName: String,     MaidenName: Null,     Title: Null,     DateOfBirth: String,     BirthCountry: String,     MaritalStatus: String,     SmokerStatus: String,     Gender: String,     CompanyName: Null,     ClientMDMID: String,     PrimaryOccupation: String,     EmployerName: String,     EmployerAddress1: String,     EmployerAddress2: String,     EmployerAddress3: String,     EmployerCity: String,     EmployerState: String,     EmployerCountry: String,     TotalAnnualIncome: Null,     OccupationalIncome: String,     OtherIncome: Null,     PrimaryEmail: String,     SecondaryEmail: Null,     HomeAddress1: String,     HomeAddress2: Null,     HomeAddress3: Null,     HomeCity: String,     HomeState: String,     HomeCountry: String,     HomeZipCode: Null,     MailingAddress1: String,     MailingAddress2: String,     MailingAddress3: String,     MailingCity: String,     MailingState: String,     MailingCountry: String,     MailingZipCode: String,     HomePhone: String,     CellPhone1: String,     CellPhone2: Null,     WorkPhone: String,     ProofOfAgeIndicator: String,     YearsEmployed: String,     SelfEmployed: Boolean,     IsGHLEmployee: Boolean,     IsPep: Boolean,     Identification: Array<{|      IDNumber: String,       IDType: String,       IDExpDate: String,       IssueCountry: Null    |}>
+  |}>, 
+  Application: {|
+    ApplicationID: String, 
+    UniqueApplicationID: String, 
+    RegionCode: String, 
+    NewBusiniess: Array<{|      Type: String,       Value: String    |}>, 
+    ApplicationAgent: Array<{|      AgentCode: String,       Split: String,       IsPrimary: String    |}>, 
+    BankAccountInfo: {|
+      AccountNumber: String, 
+      AccountType: String, 
+      Country: Null, 
+      BankName: String, 
+      BranchName: String, 
+      BranchNumber: Null, 
+      TransitNumber: Null, 
+      RoutingNumber: String, 
+      DrawDay: String
+    |}, 
+    UserNTID: Null, 
+    CreateDate: Null, 
+    SubmitDate: Null, 
+    StatusID: Null, 
+    SumAssured12MonthAgent: Null, 
+    PayorCompanyName: Null, 
+    OwnerTypeCode: Null, 
+    OwnerCompanyName: Null, 
+    ApplicantTypeCode: Null, 
+    RaterOccupation: Null, 
+    RaterAge: Null, 
+    RaterIncome: Null, 
+    RaterPremium: Null, 
+    RaterPremiumFrequency: Null, 
+    RaterStabilityEmployment: Null, 
+    RaterInitialSettlement: Null, 
+    RaterPreviousInsurance: Null, 
+    TotalRater: Null, 
+    ApplicationDetailValue: Null
+  |}, 
+  Policy: Array<{|    InsuredId: String,     PolicyID: Null,     OwnerID: String,     PayorID: String,     OwnerRelationshipName: Null,     BeneficiaryIsEstate: Null,     BeneficiaryIsIrrevocable: Null,     BeneficiaryIsMPA: Null,     ProductCode: String,     IngeniumPolicyID: String,     ApplicationSignedDate: String,     EffectiveDate: String,     InterestHandling: Null,     SecondaryInsured: Array<Any>, 
+    BeneficiaryInfo: Array<Any>, 
+    PolicyOptions: Array<{|      OptionName: String,       PolicyOptionValue: String    |}>, 
+    Coverages: Array<{|      ProductCode: String,       ProductName: String,       Premium: String,       FaceAmount: String,       InsuredID: String,       Decision: Null,       EffectiveDate: Null,       MaturityDate: Null,       PremiumChangeDate: Null,       Rating1: Number {"typeId": "int"},       RatingReason1: String,       Rating2: Number {"typeId": "int"},       RatingReason2: String,       PermFlatExtraAmt: Number {"typeId": "int"},       TempFlatExtraAmt: Number {"typeId": "int"},       TempFlatExtraDuration: Number {"typeId": "int"},       Funds: Array<Any>, 
+      Disposition: {|
+        Value: String, 
+        Reason: String
+      |}
+    |}>, 
+    Disposition: Null
+  |}>
+|} {"example": "{\\\"Person\\\":[{\\\"ID\\\":\\\"1745309\\\",\\\"FirstName\\\":\\\"michael\\\",\\\"MiddleName\\\":null,\\\"LastName\\\":\\\"johnston\\\",\\\"MaidenName\\\":null,\\\"Title\\\":null,\\\"DateOfBirth\\\":\\\"1972-03-27\\\",\\\"BirthCountry\\\":\\\"Trinidad and Tobago\\\",\\\"MaritalStatus\\\":\\\"S\\\",\\\"SmokerStatus\\\":\\\"N\\\",\\\"Gender\\\":\\\"M\\\",\\\"CompanyName\\\":null,\\\"ClientMDMID\\\":\\\"1745309\\\",\\\"PrimaryOccupation\\\":\\\"video camera editor\\\",\\\"EmployerName\\\":\\\"republic bank\\\",\\\"EmployerAddress1\\\":\\\"park street  , Port of Spain,\\\",\\\"EmployerAddress2\\\":\\\"\\\",\\\"EmployerAddress3\\\":\\\"\\\",\\\"EmployerCity\\\":\\\"\\\",\\\"EmployerState\\\":\\\"\\\",\\\"EmployerCountry\\\":\\\"\\\",\\\"TotalAnnualIncome\\\":null,\\\"OccupationalIncome\\\":\\\"110000\\\",\\\"OtherIncome\\\":null,\\\"PrimaryEmail\\\":\\\"janeal.james@myguardiangroup.com\\\",\\\"SecondaryEmail\\\":null,\\\"HomeAddress1\\\":\\\"get st\\\",\\\"HomeAddress2\\\":null,\\\"HomeAddress3\\\":null,\\\"HomeCity\\\":\\\"Freeport\\\",\\\"HomeState\\\":\\\"\\\",\\\"HomeCountry\\\":\\\"Trinidad and Tobago\\\",\\\"HomeZipCode\\\":null,\\\"MailingAddress1\\\":\\\"\\\",\\\"MailingAddress2\\\":\\\"\\\",\\\"MailingAddress3\\\":\\\"\\\",\\\"MailingCity\\\":\\\"\\\",\\\"MailingState\\\":\\\"\\\",\\\"MailingCountry\\\":\\\"\\\",\\\"MailingZipCode\\\":\\\"\\\",\\\"HomePhone\\\":\\\"\\\",\\\"CellPhone1\\\":\\\"1111111111\\\",\\\"CellPhone2\\\":null,\\\"WorkPhone\\\":\\\"\\\",\\\"ProofOfAgeIndicator\\\":\\\"Yes\\\",\\\"YearsEmployed\\\":\\\"4\\\",\\\"SelfEmployed\\\":false,\\\"IsGHLEmployee\\\":false,\\\"IsPep\\\":false,\\\"Identification\\\":[{\\\"IDNumber\\\":\\\"234322\\\",\\\"IDType\\\":\\\"Passport\\\",\\\"IDExpDate\\\":\\\"2023-04-30 00:00:00.0\\\",\\\"IssueCountry\\\":null}]}],\\\"Application\\\":{\\\"ApplicationID\\\":\\\"C03EEAF6-B3D9-4E82-9F6F-869DFB4F1332\\\",\\\"UniqueApplicationID\\\":\\\"\\\",\\\"RegionCode\\\":\\\"TT\\\",\\\"NewBusiniess\\\":[{\\\"Type\\\":\\\"Sales Source\\\",\\\"Value\\\":\\\"New\\\"}],\\\"ApplicationAgent\\\":[{\\\"AgentCode\\\":\\\"AXXXX4\\\",\\\"Split\\\":\\\"100\\\",\\\"IsPrimary\\\":\\\"false\\\"}],\\\"BankAccountInfo\\\":{\\\"AccountNumber\\\":\\\"\\\",\\\"AccountType\\\":\\\"\\\",\\\"Country\\\":null,\\\"BankName\\\":\\\"\\\",\\\"BranchName\\\":\\\"\\\",\\\"BranchNumber\\\":null,\\\"TransitNumber\\\":null,\\\"RoutingNumber\\\":\\\"\\\",\\\"DrawDay\\\":\\\"0\\\"},\\\"UserNTID\\\":null,\\\"CreateDate\\\":null,\\\"SubmitDate\\\":null,\\\"StatusID\\\":null,\\\"SumAssured12MonthAgent\\\":null,\\\"PayorCompanyName\\\":null,\\\"OwnerTypeCode\\\":null,\\\"OwnerCompanyName\\\":null,\\\"ApplicantTypeCode\\\":null,\\\"RaterOccupation\\\":null,\\\"RaterAge\\\":null,\\\"RaterIncome\\\":null,\\\"RaterPremium\\\":null,\\\"RaterPremiumFrequency\\\":null,\\\"RaterStabilityEmployment\\\":null,\\\"RaterInitialSettlement\\\":null,\\\"RaterPreviousInsurance\\\":null,\\\"TotalRater\\\":null,\\\"ApplicationDetailValue\\\":null},\\\"Policy\\\":[{\\\"InsuredId\\\":\\\"1745309\\\",\\\"PolicyID\\\":null,\\\"OwnerID\\\":\\\"1745309\\\",\\\"PayorID\\\":\\\"1745309\\\",\\\"OwnerRelationshipName\\\":null,\\\"BeneficiaryIsEstate\\\":null,\\\"BeneficiaryIsIrrevocable\\\":null,\\\"BeneficiaryIsMPA\\\":null,\\\"ProductCode\\\":\\\"CRIEV1\\\",\\\"IngeniumPolicyID\\\":\\\"5003613881\\\",\\\"ApplicationSignedDate\\\":\\\"2023-04-17\\\",\\\"EffectiveDate\\\":\\\"2022-05-03\\\",\\\"InterestHandling\\\":null,\\\"SecondaryInsured\\\":[],\\\"BeneficiaryInfo\\\":[],\\\"PolicyOptions\\\":[{\\\"OptionName\\\":\\\"Sum Assured\\\",\\\"PolicyOptionValue\\\":\\\"190000\\\"},{\\\"OptionName\\\":\\\"Method of Payment\\\",\\\"PolicyOptionValue\\\":\\\"B\\\"},{\\\"OptionName\\\":\\\"Mode of Payment\\\",\\\"PolicyOptionValue\\\":\\\"01\\\"},{\\\"OptionName\\\":\\\"Base Premium Amount\\\",\\\"PolicyOptionValue\\\":\\\"570.95\\\"},{\\\"OptionName\\\":\\\"Listbill\\\",\\\"PolicyOptionValue\\\":\\\"\\\"}],\\\"Coverages\\\":[{\\\"ProductCode\\\":\\\"CRIEV1\\\",\\\"ProductName\\\":\\\"CRIEV1 - Life Evol Rej TT\\\",\\\"Premium\\\":\\\"570.95\\\",\\\"FaceAmount\\\":\\\"190000\\\",\\\"InsuredID\\\":\\\"1745309\\\",\\\"Decision\\\":null,\\\"EffectiveDate\\\":null,\\\"MaturityDate\\\":null,\\\"PremiumChangeDate\\\":null,\\\"Rating1\\\":0,\\\"RatingReason1\\\":\\\"Medical Reasons\\\",\\\"Rating2\\\":0,\\\"RatingReason2\\\":\\\"\\\",\\\"PermFlatExtraAmt\\\":3,\\\"TempFlatExtraAmt\\\":0,\\\"TempFlatExtraDuration\\\":0,\\\"Funds\\\":[],\\\"Disposition\\\":{\\\"Value\\\":\\\"Approved\\\",\\\"Reason\\\":\\\"Approve with a Rating\\\"}}],\\\"Disposition\\\":null}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#e7b088bb-517e-43ba-9a71-684e66b0ed77">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="xml"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

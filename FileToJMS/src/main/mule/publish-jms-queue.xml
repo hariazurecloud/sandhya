@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="d9721b18-bb53-44bc-a34f-b18721716c8b" >
+		<jms:active-mq-connection >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<file:config name="File_Config-writeToFile-original" doc:name="File Config" doc:id="3b69bf84-94a9-47c1-bf10-44bcb3626fb8" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\input" />
+	</file:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2fa92168-f899-4e4b-903a-369c19f1c642" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<configuration doc:name="Configuration" doc:id="8dd5ae61-c64f-4abd-b3fb-7a1c7eefa824" defaultErrorHandler-ref="global_error_handler" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="daea84c0-958f-4478-9c7c-d44bd4cbedb7" >
+		<http:request-connection host="${http_Req.host}" port="${http_Req.port}" />
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="5ce800b3-ab53-4167-b1c0-dcb479ae48d8" file="FileToJmsPrtyFile.yaml" />
+	<http:request-config name="ApiGateway-request" doc:name="HTTP Request configuration" doc:id="5a184689-49e1-425b-b92a-3f9134217330" >
+		<http:request-connection host="${http_Req_ApiGateway.host}" port="${http_Req_ApiGateway.port}" />
+	</http:request-config>
+	<flow name="publish-jms-queueFlow" doc:id="c71c443b-23f5-438a-b706-6f79e4f7fc2a" >
+		<http:listener doc:name="XML dATA REQUEST from UWPRO" doc:id="c703d57a-6a80-4af0-b95c-7f510cff6784" config-ref="HTTP_Listener_config" path="/test"/>
+		<set-variable value='#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.TXLife.TXLifeRequest.TransRefGUID  ++ ".xml"]' doc:name="appId---&gt;TransRefGUID" doc:id="b022d02c-84e1-4481-b48f-90ddf43ddc38" variableName="appId"/>
+		<set-variable value="#[payload]" doc:name="orginalPayload" doc:id="337a972a-32c1-4a5d-a3f9-77554080e34d" variableName="orginalPayload"/>
+		<file:write doc:name="WriteTo-localFolder" doc:id="20311f91-cf8a-4219-86ab-e0d0f2996232" config-ref="File_Config-writeToFile-original" path="#[vars.appId]"/>
+		<set-variable value="#[attributes.queryParams.Request]" doc:name="RequestType" doc:id="608adf25-0f01-4869-b39f-fde3ac6c8473" variableName="RequestType" />
+		<set-variable doc:name="tranId" doc:id="9ff0439d-9f72-4d06-836c-a354f4168c61" variableName="tranId" value="#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.TXLife.TXLifeRequest.TransRefGUID]" />
+		<ee:transform doc:name="QueryToSelect" doc:id="3050d875-6496-420f-ba5d-60da93359590">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+
+---
+
+"query": "SELECT TransRefGUID FROM UWProToGG.Transcations WHERE TransRefGUID ='" ++ vars.tranId ++ "'"
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		<http:request method="POST" doc:name="select the dataBase" doc:id="c6c603f8-45d3-4df6-953f-510456c5c5b8" config-ref="HTTP_Request_configuration" path="${http_Req.path}select" responseTimeout="100000"/>
+		<logger level="INFO" doc:name="Logger" doc:id="a9d50082-4fb1-4e7e-84de-42b183f43658" />
+		<choice doc:name="checkDataAvailibility" doc:id="b7023587-fbae-4265-acce-951752a7a313">
+			<when expression="#[payload.TransRefGUID[0] == vars.tranId]">
+				<ee:transform doc:name="queryToUpdate" doc:id="97c9ad26-c78d-455a-9b1e-bdbf60cdbab7" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+
+
+---
+"query" : "UPDATE UWProToGG.Transcations SET column_name = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoName ++"' , CreatedOn = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationDate ++ "'  , ModifiedOn = '" ++ now() ++ "' , LastExecuted = '" ++ now() ++ "' , Retries = '" ++ 10 ++"' , TransType = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransType ++ "', Id = '"++ 0 ++"', WasProcessed = " ++ true ++ " , Message = '"++ 'processing' ++"', TransRefGUID = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID ++ "', RequestStatus ='"++ 'processing' ++"', RequirementName = '"++ 'N/A' ++"', RequestType = '" ++ vars.RequestType ++ "', RequirementInfoUniqueID = '" ++ '1234' ++ "' , CarrierCode = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.CarrierCode ++ "', PolicyNumber = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PolNumber ++ "', ApplicationNumber = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID ++ "', FolderDetails = '" ++ 'N/A' ++ "' WHERE TransRefGUID = '" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID ++ "'" ]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<http:request method="POST" doc:name="RequestToUpdate" doc:id="4a65c448-4f27-4116-8112-9243a6cb8da0" config-ref="HTTP_Request_configuration" path="${http_Req.path}update"/>
+			</when>
+				<otherwise>
+					<logger level="INFO" doc:name="data not available in DB" doc:id="eeaabad8-6d02-4fcb-b93e-adec375fa092" message="data not available in DB" />
+					<ee:transform doc:name="Transform Message" doc:id="a063e688-9f7d-4234-bb9c-951f39957273">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"query": "INSERT INTO UWProToGG.Transcations (column_name, CreatedOn, ModifiedOn,LastExecuted, Retries,TransType, Id, WasProcessed, Message, TransRefGUID, RequestStatus,RequirementName,RequestType, RequirementInfoUniqueID,CarrierCode, PolicyNumber,ApplicationNumber, FolderDetails) VALUES ( '" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoName ++"','" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationDate ++ "','" ++ now() ++ "','" ++ now() ++ "','5','" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransType ++ "','0','true','processing','" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID ++ "', 'processing','NA','" ++ vars.RequestType ++ "', 'NA' ,'" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.CarrierCode ++ "','" ++ vars.orginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PolNumber ++ "','" ++ vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID ++ "', 'N/A'"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<http:request method="POST" doc:name="Request" doc:id="e3bfdc2f-7e86-41c9-a5aa-706b355fb3ed" config-ref="HTTP_Request_configuration" path="${http_Req.path}insert"/>
+				<logger level="INFO" doc:name="Logger" doc:id="54f39ecd-0a23-49cd-9c7c-d85f4adc10e9" message="#[payload]"/>
+				<db:insert doc:name="InsertTheData" doc:id="80ed5b63-b85d-4bcd-b414-1fdd5c1e3b72">
+			<db:sql><![CDATA[INSERT INTO UWProToGG.Transcations (column_name, CreatedOn, ModifiedOn,LastExecuted, Retries, TransType, Id, WasProcessed, 	Message, TransRefGUID,
+RequestStatus, RequirementName, RequestType, RequirementInfoUniqueID, CarrierCode, PolicyNumber, ApplicationNumber, FolderDetails)
+VALUES (:column_name, :CreatedOn, :ModifiedOn,:LastExecuted, :Retries, :TransType, :Id, :WasProcessed, 	:Message, :TransRefGUID,
+:RequestStatus,:RequirementName,:RequestType,:RequirementInfoUniqueID,:CarrierCode, :PolicyNumber, :ApplicationNumber, :FolderDetails);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+ column_name: vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoName,
+ CreatedOn: vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationDate,
+ ModifiedOn : now(),
+  LastExecuted: now(),
+   Retries: 10,
+   TransType: vars.orginalPayload.TXLife.TXLifeRequest.TransType, 
+   Id: 1,
+    WasProcessed: true, 	
+    Message: "processing", 
+    TransRefGUID: vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID,
+RequestStatus: "processing",
+ RequirementName : "N/A", 
+ RequestType : vars.RequestType,
+  RequirementInfoUniqueID: "N/A",
+   CarrierCode:vars.orginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.CarrierCode , 
+   PolicyNumber:vars.orginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PolNumber,
+    ApplicationNumber: vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID,
+     FolderDetails:"N/A"
+    }]]]></db:input-parameters>
+		</db:insert>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="EnterpriseMessage" doc:id="cc0a57ab-d254-49e2-b806-6ceb120ebc4c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0output application/xml     ---EnterpriseMessage @(xmlns: ""): {    message: uuid(),    TransRefGUID: vars.orginalPayload.TXLife.TXLifeRequest.TransRefGUID,    TransType: vars.orginalPayload.TXLife.TXLifeRequest.TransType,    source: vars.orginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoName,    Type : attributes.queryParams.Request,    path: "C:/Users/sandhya.a/OneDrive - Technovert/Documents/input/" ++ vars.appId             }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:publish doc:name="PublishTo-Consume" doc:id="a8c756b0-2be3-4393-ab30-afc6576bf15d" config-ref="JMS_Config" destination="test_Queue" sendCorrelationId="AUTO"/>
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="e4c4674c-683e-4332-9b3c-68b0dce4b0eb" >
+			<http:request method="POST" doc:name="RequestTo-Api-Gateway" doc:id="b955fedd-bf47-4830-9703-ac1688bc1250" responseTimeout="1000000" config-ref="ApiGateway-request" path="${http_Req_ApiGateway.path}/newPolicyCreation">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	transType : payload.EnterpriseMessage.TransType,
+	Request : payload.EnterpriseMessage.Type
+}]]]></http:query-params>
+		</http:request>
+		</until-successful>
+	</flow>
+</mule>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EnterpriseException
+	xmlns="http://schemas.umusic.com/enterprise/services/2014/05">
+	<ExceptionId>060dcd56-ce60-40a5-a43f-b00bacaac7fe</ExceptionId>
+	<CreatedUtc>2015-01-08T20:31:21.184+05:30</CreatedUtc>
+	<ErrorCode>0</ErrorCode>
+	<Description>The API Gateway is not available (or) not running</Description>
+	<Details>The API Gateway is not running. Please verify the API Gateway status</Details>
+	<Category>Error</Category>
+	<Retriable>false</Retriable>
+	<MessageId>3c4007ec-fc4a-4062-b6f2-7483659fb853</MessageId>
+	<ResourceName></ResourceName>
+	<ResourceId></ResourceId>
+	<Service>SAP2ES-FICO</Service>
+	<Machine>INVHYDNB37</Machine>
+</EnterpriseException> 
+

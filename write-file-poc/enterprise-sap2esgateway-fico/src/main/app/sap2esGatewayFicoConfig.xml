@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:enterpriselogger="http://www.mulesoft.org/schema/mule/enterpriselogger"
+	xmlns:cluster="http://www.mulesoft.org/schema/mule/cluster" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/enterpriselogger http://www.mulesoft.org/schema/mule/enterpriselogger/current/mule-enterpriselogger.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
+
+	<!-- JAXB_Context -->
+	<mulexml:jaxb-context name="JAXB_Context"
+		packageNames="com.umgi.es.common.util.pojo.xml" doc:name="JAXB Context" />
+
+
+	<!-- Service Config -->
+	<spring:beans>
+		<spring:bean name="sap2esFicoPropsBean"
+			class="com.umgi.es.common.util.serviceconfig.EnterpriseServiceConfig">
+			<spring:property name="configRoot"
+				value="#{environment['env.configRoot']}" />
+			<spring:property name="location"
+				value="es_config_sap2esgateway_fico.properties" />
+			<spring:property name="decryptionAlgorithm"
+				value="#{environment['env.decryptionAlgorithm']}" />
+			<spring:property name="decryptionPassword"
+				value="#{environment['env.decryptionPassword']}" />
+		</spring:bean>
+	</spring:beans>
+
+	<!--Object store for untilsuccessful -->
+	<spring:beans>
+		<spring:bean id="ObjectStore" name="ObjectStore"
+			class="org.mule.util.store.SimpleMemoryObjectStore" />
+	</spring:beans>
+
+	<!-- EnterpriseLogger Global Configurations -->
+	<enterpriselogger:config name="SAP2esFicoLogger"
+		loggerName="${sap2es.fico.logger.logger.name}" serviceName="${sap2es.fico.logger.service.name}"
+		doc:name="EnterpriseLogger" />
+
+	<!-- vm connector and endpoint configurations -->
+	<vm:connector name="SAP2esFicoVMGlobalConn"
+		validateConnections="true" doc:name="VM" />
+	<vm:endpoint exchange-pattern="one-way"
+		path="${sap2es.fico.vm.apigateway.na}" name="APIGatewayNA" doc:name="VM" />
+
+
+   <http:request-config name="HTTP_Request_Configuration" host="${sap2es.fico.apigateway.host}" port="${sap2es.fico.apigateway.port}" responseTimeout="${sap2es.fico.apigateway.responsetime}" doc:name="HTTP Request Configuration"/>
+   
+	<choice-exception-strategy name="glblSap2esFicoChoiceExceptionStrategy">		
+        <catch-exception-strategy when="#[exception.causedBy(org.mule.api.routing.RoutingException)]" doc:name="Catch Exception Strategy">
+            <enterpriselogger:error-with-throwable config-ref="SAP2esFicoLogger" logMessage="Error occurred while calling API Gateway: #[exception.getMessage()]" processState="500005102" error-ref="#[exception]" doc:name="logs-exception-details" doc:description="just logs that the exception has occured with the message's root id"/>
+            <flow-ref name="ficoConstructingEEMFlow" doc:name="constructEE"/>
+
+        </catch-exception-strategy>
+		<catch-exception-strategy doc:name="Catch Exception Strategy">
+			<enterpriselogger:error-with-throwable
+				config-ref="SAP2esFicoLogger"
+				logMessage="Exception occurred while processing the request by sap2es fico gateway"
+				processState="500005102" doc:name="logs-exception-details"
+				doc:description="just logs that the exception has occured with the message's root id"
+				error-ref="#[exception]" />
+            <flow-ref name="ficoConstructingEEMFlow" doc:name="constructEE"/>
+
+		</catch-exception-strategy>
+	</choice-exception-strategy>
+
+
+	<flow name="mainFicoIdocConsumerFlow" 
+		doc:description="This flow will consumes the IDOCs from internal topic and responsible to prepared Enterprise-Message and then post the same to APIGatway via vm's"
+		processingStrategy="synchronous">
+		<vm:inbound-endpoint exchange-pattern="one-way"
+			path="${sap2es.fico.vm.route.idoc.for.em}" doc:name="route-idoc-to-create-enterprise-message"
+			connector-ref="SAP2esFicoVMGlobalConn" doc:description="Consumes idoc and creates enterprise message" />
+		<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+			logMessage="SAP FICO has received message for processing"
+			processState="102005200" doc:name="logs-input-received" />
+
+		<vm:outbound-endpoint exchange-pattern="request-response"
+			path="${sap2es.fico.vm.em.preparer}" doc:name="to-construct-em"
+			connector-ref="SAP2esFicoVMGlobalConn"
+			doc:description="This vmQ actually posts all the idocs to  seprate flow which inturn creates EnterpriseMessage ">
+		</vm:outbound-endpoint>
+
+		<choice doc:name="check-for-em"
+			doc:description="Allows only EM to move for ApiGatewayQ. If EM is not created sucessfully then it treats as exception occured which is default ">
+			<when
+				expression="#[payload instanceof com.umgi.es.common.util.pojo.xml.EnterpriseMessage == true]">
+				<vm:outbound-endpoint exchange-pattern="one-way"
+					path="${sap2es.fico.vm.idoc.sender}" connector-ref="SAP2esFicoVMGlobalConn"
+					doc:name="em-to-apigateway"
+					doc:description="This vmQ actually posts all the EMs to seprate flow which inturn calls APIGateway" />
+			</when>
+			<otherwise>
+				<enterpriselogger:error config-ref="SAP2esFicoLogger"
+					logMessage="There was an error during enterprise message creation"
+					processState="500005201" doc:name="logs-end-of-flow"
+					doc:description="Logs information that their was processing exception." />
+			</otherwise>
+		</choice>
+		<exception-strategy ref="glblSap2esFicoChoiceExceptionStrategy"
+			doc:name="Reference Exception Strategy" />
+	</flow>
+
+	<flow name="ficoConstructingEMFlow" 
+		doc:description="This is the flow which will actually constructs EnterpriseMessage by injecting metadata of IDOC in it.
+Steps includes following:
+1. Receiving Idoc out of vmQ 
+2. Computes IDOCs size and set up a flag which tells idoc huge/small threshold  
+3. Based on flase writes Idoc to file and then 
+4. Prepares EnterpriseMessage Object">
+		<vm:inbound-endpoint exchange-pattern="request-response"
+			path="${sap2es.fico.vm.em.preparer}" doc:name="to-construct-em"
+			connector-ref="SAP2esFicoVMGlobalConn"
+			doc:description="Receives IDoc's and process them further to constructing EnterpriseMesssage" />
+		<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+			logMessage="Constructing Enterprise Message is started" processState="102005301"
+			doc:name="logs-enterprise-message-creation-started" />
+		<message-properties-transformer
+			overwrite="true" doc:name="acquire-idoc-properties"
+			doc:description="Creates following outbound properties which will be part of mule message
+1 ROOT_ID,
+2 IDOCTYP,
+3 DOCNUM,
+4 MESCODE,
+5 IDOC_FILE_LOCATION,
+6 IDOC_FILE_NAME,
+7 IDOC_THRESHOLD
+		">
+			<add-message-property key="ROOT_ID" value="#[message.rootId]" />
+			<add-message-property key="IDOCTYP"
+				value="#[xpath://IDOC//EDI_DC40//IDOCTYP]" />
+			<add-message-property key="DOCNUM"
+				value="#[xpath://IDOC//EDI_DC40//DOCNUM]" />
+			<add-message-property key="MESCOD"
+				value="#[xpath://IDOC//EDI_DC40//MESCOD]" />
+			<add-message-property key="MESFCT"
+				value="#[xpath://IDOC//EDI_DC40//MESFCT]" />
+			<add-message-property key="IDOC_FILE_LOCATION"
+				value="${sap2es.fico.idoc.hugefile.location}" />
+			<add-message-property key="IDOC_FILE_NAME"
+				value="#[xpath://IDOC//EDI_DC40//DOCNUM]" />
+			<add-message-property key="IDOC_THRESHOLD"
+				value="${sap2es.fico.idoc.threshold.in.bytes}" />
+			<add-message-property key="IDOC_MESSAGE_ID"
+				value="#[xpath://IDOC//Z1ZAUDIT//UNIQUE_ID]" />
+
+		</message-properties-transformer>
+		<message-properties-transformer
+			doc:name="store-enterprise-logger-names"
+			doc:description="Store enterprise logger name and logger service name to use in java classes."
+			overwrite="true" scope="session">
+			<add-message-property key="loggerName"
+				value="${sap2es.fico.logger.logger.name}" />
+			<add-message-property key="loggerServiceName"
+				value="${sap2es.fico.logger.service.name}" />
+		</message-properties-transformer>
+		<enterpriselogger:info config-ref="SAP2esFicoLogger"
+			logMessage="Received IDOC Number: #[message.outboundProperties['DOCNUM']]"
+			processState="102005302" doc:name="logs-idoc-number"
+			doc:description="logs idoc's document number and message's root id in debug mode" />
+		<component
+			class="com.umgi.enterpriseservices.sap2esgateway.fico.utils.ComputeIDOCSize"
+			doc:name="compute-file-size"
+			doc:description="This flow will 
+1. Receive Idoc 
+2. Computes IDOCs size 
+3. Based on threshold size set an outbound property isIdocHuge to true or false 
+4. returns back the actual mule-message" />
+		<choice doc:name="checks-isIdoc-huge"
+			doc:description="checks-isIdoc-huge, when true write to a file location else routed to default">
+			<when expression="#[message.outboundProperties['isIdocHuge'] == true]">
+				<enterpriselogger:info config-ref="SAP2esFicoLogger"
+					logMessage="IDOC is huge hence placing at location: ${sap2es.fico.idoc.hugefile.location}/#[message.outboundProperties['IDOC_FILE_NAME']].xml"
+					processState="102005303" doc:name="logs-file-saving-location"
+					doc:description="logs file saving location" />
+				<file:outbound-endpoint path="${sap2es.fico.idoc.hugefile.location}"
+
+					responseTimeout="10000" doc:name="writing-idoc-to-file"
+					outputPattern="#[message.outboundProperties['IDOC_FILE_NAME']].xml"
+					doc:description="Writes idoc xml to a file with filename" />
+			</when>
+			<otherwise>
+				<message-properties-transformer
+					doc:name="capturing-payload"
+					doc:description="captures payload as outbound variable 'ORIGINAL_PAYLOAD' ">
+					<add-message-property key="ORIGINAL_PAYLOAD"
+						value="#[payload]" />
+				</message-properties-transformer>
+				<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+					logMessage="IDOC is not huge. Hence moving forward" processState="102005303"
+					doc:name="logs-idoc-is-small"
+					doc:description="logs information that the current idoc is below the threshold value" />
+			</otherwise>
+		</choice>
+		<component
+			class="com.umgi.enterpriseservices.sap2esgateway.fico.CreateEnterpriseMessage"
+			doc:name="construct-enterprise-message" doc:description="constructs enterprise message" />
+		<message-properties-transformer
+			overwrite="true" doc:name="set-flag-postedToAPIGateway"
+			doc:description="set an outbound flag postedToAPIGateway which is used in functional-testcase">
+			<add-message-property key="postedToAPIGateway"
+				value="true" />
+		</message-properties-transformer>
+
+		<exception-strategy ref="glblSap2esFicoChoiceExceptionStrategy"
+			doc:name="Reference Exception Strategy" />
+	</flow>
+
+
+	<flow name="ficoEM2ApiGatewaySenderFlow" 
+		doc:description="This is the flow which will actually receives EnterpriseMessage object and post the same on to APIGateway over http by converting Object to xml.">
+		<vm:inbound-endpoint exchange-pattern="one-way"
+			path="${sap2es.fico.vm.idoc.sender}" doc:name="enterprise-message-to-apigateway"
+			connector-ref="SAP2esFicoVMGlobalConn"
+			doc:description="receives all EnterpriseMessages so that they can sent to apigateway" />
+		<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+			logMessage="Current payload is instanceof EnterpriseMessage (true/false): #[payload instanceof com.umgi.es.common.util.pojo.xml.EnterpriseMessage]"
+			processState="102005401" doc:name="logs-idoc-info"
+			doc:description="logs information about IDOCTYP,apigateway's url and message object type" />
+        <set-variable variableName="eMessage" value="#[payload]" doc:name="Variable"/>
+
+		<mulexml:jaxb-object-to-xml-transformer
+			jaxbContext-ref="JAXB_Context" doc:name="enterprise-message-to-xml"
+			mimeType="text/xml" />
+		<byte-array-to-string-transformer
+			mimeType="text/xml" doc:name="byte-array-to-string" />
+        <set-payload value="#[payload.replace(&quot;xmlns=\&quot;\&quot;&quot;,&quot;&quot;)]" doc:name="replace-namespace" mimeType="text/xml"/>
+		<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+			logMessage="EnterpriseMessage #[payload]" processState="102005402"
+			doc:name="logs-enterprise-message" />
+		<message-properties-transformer
+			doc:name="removing-content-type-charset">
+			<delete-message-property key="Content-Type" />
+		</message-properties-transformer>
+		<set-variable variableName="enterpriseMessage" value="#[payload]"
+			doc:name="set-enterprise-message" />
+		<enterpriselogger:info config-ref="SAP2esFicoLogger"
+			logMessage="EnterpriseMessage sending to ApiGateway at URL: ${sap2es.fico.apigateway}"
+			processState="102005403" doc:name="logs-message-sent-to-apigateway" />
+        <until-successful maxRetries="${sap2es.fico.apigateway.maxRetries}" millisBetweenRetries="${sap2es.fico.apigateway.maxRetry.interval}" failureExpression="#[header:INBOUND:http.status != 200]" synchronous="true" doc:name="until-successful">
+            <http:request config-ref="HTTP_Request_Configuration" path="${sap2es.fico.apigateway.path}" method="POST" doc:name="HTTP"/>
+        </until-successful>
+
+		<enterpriselogger:info config-ref="SAP2esFicoLogger"
+			logMessage="The http Status is #[header:INBOUND:http.status]"
+			processState="102005404" doc:name="log-http-status" doc:description="Logs the inbound HTTP status" />
+		<byte-array-to-string-transformer
+			doc:name="byte-array-to-string" />
+		<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+			logMessage="Response from APIGateway is : #[payload]" processState="102005405"
+			doc:name="logs-response-from-apiGW" />
+		<choice doc:name="verify-http-status"
+			doc:description="Verifies the HTTP inbound status for 200, 500 or other.">
+			<when expression="#[header:INBOUND:http.status = 200]">
+				<enterpriselogger:info config-ref="SAP2esFicoLogger"
+					logMessage="IDOc is successfully routed in APIGateway component"
+					processState="201005101" doc:name="route-to-apigateway"
+					doc:description="The API Gateway is available for the request" />
+			</when>
+			<otherwise>
+				<enterpriselogger:error config-ref="SAP2esFicoLogger"
+					logMessage="Apigateway's call has returned http #[header:INBOUND:http.status] and the response as #[payload]"
+					processState="500005402" doc:name="log-invalid-data"
+					doc:description="Invalid data was returned from HTTP request" />
+				<scripting:component doc:name="throws-exception">
+					<scripting:script engine="Groovy"><![CDATA[throw new Exception('Apigateways call has returned http status other than 200')]]></scripting:script>
+				</scripting:component>
+			</otherwise>
+		</choice>
+		<exception-strategy ref="glblSap2esFicoChoiceExceptionStrategy"
+			doc:name="Reference Exception Strategy" />
+	</flow>
+
+
+
+	<flow name="ficoConstructingEEMFlow" 
+		doc:description="This is the flow which will actually constructs EnterpriseExceptionMessage when an exception is read from the listener queue and it also post the EEM object to GlobalExceptionsHandler queue.">
+
+		<component
+			class="com.umgi.enterpriseservices.sap2esgateway.fico.CreateEnterpriseExceptionMessage"
+			doc:name="create-EEMessage" doc:description="Creates EnterpriseExceptionMessage" />
+		<!-- uncomment the code to check EEM in xml format -->
+		<!-- <mulexml:jaxb-object-to-xml-transformer jaxbContext-ref="JAXB_Context" 
+			doc:name="enterprise-message-to-xml" mimeType="text/xml" /> <byte-array-to-string-transformer 
+			mimeType="text/xml" doc:name="byte-array-to-string" /> <set-payload value="#[org.apache.commons.lang.StringEscapeUtils.unescapeXml(payload)]" 
+			doc:name="fine-tuning-xml" /> -->
+		<jms:outbound-endpoint queue="${sap2es.exception.handler.global.queueName}"
+			connector-ref="active-mq" doc:name="JMS - Send to Global Exception"
+			doc:description="Sends the Exception message to Global Exception Handler" />
+		<enterpriselogger:debug config-ref="SAP2esFicoLogger"
+			doc:name="logs-excetion-send-to-geh" logMessage="Enterprise Exception Message has send to GEH."
+			processState="102005501" />
+		<enterpriselogger:error config-ref="SAP2esFicoLogger"
+			logMessage="SAP2ES module transaction end with exception"
+			processState="102005502" doc:name="log-end-of-processing"
+			doc:description="logs end of processing" />
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <enterpriselogger:error-with-throwable config-ref="SAP2esFicoLogger" logMessage="Exception occurred in enterprise exception message creation flow" processState="500005102" error-ref="#[exception]" doc:name="logs-exception-details" doc:description="just logs that the exception has occured with the message's root id"/>
+        </catch-exception-strategy>
+
+	</flow>
+
+</mule>

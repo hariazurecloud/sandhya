@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <http:listener-config name="database-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8089" />
+    </http:listener-config>
+    <apikit:config name="database-api-config" api="database-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <db:config name="Database_Config" doc:name="Database Config" doc:id="f3920446-676e-4f34-ac1a-1c29c752b83f" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
+	</db:config>
+	<flow name="database-api-main">
+        <http:listener config-ref="database-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="database-api-config" />
+    </flow>
+    <flow name="database-api-console">
+        <http:listener config-ref="database-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="database-api-config" />
+    </flow>
+    <flow name="post:\insert:application\json:database-api-config">
+        <db:insert doc:name="Insert" doc:id="3596d6ad-fffc-4ad6-9600-798ace672220" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload.query]]]></db:sql>
+		</db:insert>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"successfully inserted the available Data"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\select:application\json:database-api-config">
+        <db:select doc:name="Select" doc:id="e26be2e0-640b-4148-9815-a7dc3bbc1399" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload.query]]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="ca6e985f-7b41-4198-96bb-aaa781e2c8c1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="payload" doc:id="72c8a0eb-84e9-4f88-9a2c-b8242f5bb4e8" message="#[payload]"/>
+    </flow>
+    <flow name="post:\update:application\json:database-api-config">
+        <db:update doc:name="Update" doc:id="220f8e70-3329-480d-a794-dacdc4c56471" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload.query]]]></db:sql>
+		</db:update>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<logger level="INFO" doc:name="payload" doc:id="c64afd55-6d39-4182-81ff-790aa860d6d8" message="#[payload]"/>
+    </flow>
+</mule>

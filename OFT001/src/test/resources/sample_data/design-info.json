@@ -1,0 +1,8 @@
+{
+  "sampleData": {
+    "f57a298f-d456-4ef0-a50a-ef662ac10b3d": {
+      "vars-originalPayload": "sample_data/java.dwl",
+      "payload": "sample_data/risk.xml"
+    }
+  }
+}

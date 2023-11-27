@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+    <http:listener-config name="api-gateway-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" />
+    </http:listener-config>
+    <apikit:config name="api-gateway-config" api="api-gateway.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <jms:config name="JMS_Config" doc:name="JMS Config" doc:id="6defb0c2-9d40-4c09-b412-941468e8a4cb" >
+		<jms:active-mq-connection >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="2b08dc5f-7383-4895-8297-074d648c5f2c" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\input" />
+	</file:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2adae503-c526-4300-9677-250d4fd23ccf" >
+		<http:request-connection protocol="HTTPS" >
+			<http:authentication >
+				<http:basic-authentication username="mwusr_api_tst" password="Today123" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<file:config name="File_Config-ToMove" doc:name="File Config" doc:id="e0795124-6592-4752-aa9b-7b7a59659c8c" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\input" />
+	</file:config>
+	<configuration doc:name="Configuration" doc:id="ab57667b-6349-4925-961d-8615c91b2316" defaultErrorHandler-ref="global_error_handler" />
+	<flow name="api-gateway-main">
+        <http:listener config-ref="api-gateway-httpListenerConfig" path="${http.path}">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="api-gateway-config" />
+    </flow>
+    <flow name="api-gateway-console">
+        <http:listener config-ref="api-gateway-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="api-gateway-config" />
+    </flow>
+    <flow name="post:\newPolicyCreation:application\xml:api-gateway-config">
+        <jms:consume doc:name="ConsumeMessage" doc:id="a296cd0b-d31e-4733-a71d-7aa1d5f02dc8" config-ref="JMS_Config" destination="test_Queue" contentType="application/xml" maximumWait="-1"/>
+		<set-variable value="#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.EnterpriseMessage.Type]" doc:name="Set Variable" doc:id="c91ac206-f0ee-438c-b598-cbdc85d3c537" variableName="Type"/>
+		<set-variable value="#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.EnterpriseMessage.path]" doc:name="readFile" doc:id="73fcfabe-53f4-41d5-81bb-42e1fdde2fdd" variableName="readFile"/>
+		<file:read doc:name="ReadTheDataInThePath" doc:id="7a2c4c7b-9903-4e4e-b0dd-3117c82c4b0b" config-ref="File_Config" path="#[vars.readFile]"/>
+		<set-variable value="#[payload]" doc:name="payloadToProcess" doc:id="033a6e0a-0001-46cc-91be-64ff32a4cbc5" variableName="payloadToMove"/>
+		<flow-ref doc:name="GoTo-transtype-selector-Flow" doc:id="a36eb16c-a895-4160-a0af-2528e7f55c10" name="transtype-selector-Flow"/>
+    </flow>
+	<flow name="transtype-selector-Flow" doc:id="359f8ab5-ff9c-4ccd-845c-c91051c9565b" >
+		<choice doc:name="select the flow based on transtype" doc:id="22b8b2b9-f81e-4c69-8fbe-986f54eb9709" >
+			<when expression='#[payload.TXLife.TXLifeRequest.TransType == "New Business" or payload.TXLife.TXLifeRequest.TransType == "1125"]'>
+				<logger level="INFO" doc:name="TransType--103/1125" doc:id="7eb63386-3fe5-49cd-935c-917994873488" message="TransType--103/1125"/>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="9b63f1a2-c3da-4f53-a7ac-dde38c2fd010" >
+					<http:request method="POST" doc:name="RequestToIngeniumAPI" doc:id="c2151f1d-68dc-496f-87d5-b87a60427d75" url="http://${ingenium_Req.host}: ${ingenium_Req.port}${ingenium_Req.path}" responseTimeout="100000">
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	Request : vars.Type
+}]]]></http:query-params>
+				</http:request>
+				</until-successful>
+			</when>
+			<when expression='#[payload.TXLife.TXLifeRequest.TransType == "General Requirements Order Request"]'>
+				<logger level="INFO" doc:name="transtype-121" doc:id="e23451b4-4904-400e-b322-8d56d49f7e5c" message="transtype-121"/>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="d1764c29-4150-4708-8d78-803a6696d08f" >
+					<http:request method="POST" doc:name="RequestToOFT/IMP API" doc:id="5fcfeee0-464f-48d2-9db0-21474bd65089" url="http://${oft/imp_Req.host}: ${oft/imp_Req.port}${oft/imp_Req.path}" responseTimeout="100000">
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	Request : vars.Type
+}]]]></http:query-params>
+				</http:request>
+				</until-successful>
+				<logger level="INFO" doc:name="Logger" doc:id="3cb32b6f-5034-4c87-93a5-c1379ebcb27a" message="#[payload]"/>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="8edb948e-23b0-496e-bca0-ce9a7e9403c7" type="ORDER:INVALID_DATA" description="data is invalid"/>
+				<logger level="INFO" doc:name="NoData" doc:id="33f2570c-e55f-4b20-8429-dbe89652a38b" message="noData" />
+			</otherwise>
+		</choice>
+		<flow-ref doc:name="FileMoveToDirectory" doc:id="cdb29f9e-35e7-4a79-85e0-579a2fa011e3" name="FileMoveToDirectory"/>
+		<ee:transform doc:name="endOfTheFlow">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"successfully data is sent to end systems "]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+	</flow>
+	<flow name="FileMoveToDirectory" doc:id="42bdfcba-b1b1-4377-b9cf-110d55affcec" >
+		<file:listener doc:name="uploadFileToEndDirectory" doc:id="adc14935-e012-4b36-bb40-0cb979d9faf3" config-ref="File_Config-ToMove" recursive="false" timeBetweenSizeCheck="1000" timeBetweenSizeCheckUnit="MILLISECONDS" moveToDirectory="C:\Users\sandhya.a\OneDrive - Technovert\Documents\OUTPUT" overwrite="true">
+			<ee:repeatable-file-store-stream bufferUnit="MB" />
+			<scheduling-strategy >
+				<fixed-frequency startDelay="5" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="file moved  from processed folder" doc:id="cb113443-200d-40e4-9058-829d76af994a" message="file moved  from processed folder"/>
+	</flow>
+</mule>

@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TXLife xmlns="http://ACORD.org/Standards/Life/2" xmlns:F="http://www.sapiens.com/LPES/Base/Form" xmlns:FIP="http://www.sapiens.com/LPES/Base/Form" xmln_xsd="http://www.w3.org/2001/XMLSchema" xmln_xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <TXLifeRequest>
+      <TransRefGUID>1B0A0518-E887-4CFA-BECE-658525BFC241</TransRefGUID>
+      <TransType tc="103">New Business</TransType>
+      <TransExeDate>2023-04-21</TransExeDate>
+      <TransExeTime>14:20:21</TransExeTime>
+      <OLifE xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <SourceInfo>
+            <CreationDate>2023-04-21</CreationDate>
+            <CreationTime>14:20:21</CreationTime>
+            <SourceInfoComment>SalesPal</SourceInfoComment>
+            <SourceInfoName>GLOC</SourceInfoName>
+         </SourceInfo>
+         <Holding id="Holding_1">
+            <HoldingKey>TEST10001</HoldingKey>
+            <HoldingTypeCode tc="2">Policy</HoldingTypeCode>
+            <HoldingStatus tc="3">Proposed</HoldingStatus>
+            <Policy>
+               <LineOfBusiness tc="1">Life</LineOfBusiness>
+               <ProductCode>CR4RP1</ProductCode>
+               <PlanName>Rejuvenator Plus to age 70</PlanName>
+               <CarrierCode>GLOC</CarrierCode>
+               <ShortName>Rejuvenator Plus to age 70</ShortName>
+               <PolicyStatus tc="8">Pending</PolicyStatus>
+               <IssueNation tc="780">Trinidad &amp; Tobago</IssueNation>
+               <Jurisdiction tc="2147483647">Other</Jurisdiction>
+               <PaymentMode tc="4">Monthly</PaymentMode>
+               <PaymentMethod tc="29">Bankers Order</PaymentMethod>
+               <PaymentAmt>820.04</PaymentAmt>
+               <Life>
+                  <InitialPremAmt>400000</InitialPremAmt>
+                  <Coverage id="Coverage_1">
+                     <PlanName>CR4RP1</PlanName>
+                     <ShortName>Rejuvenator Plus to age 70</ShortName>
+                     <ProductCode>CR4RP1</ProductCode>
+                     <Duration>10</Duration>
+                     <CurrentAmt>400000</CurrentAmt>
+                     <SubstandardRating>
+                        <PermTableRating tc="4" />
+                        <TempFlatEndDate>2023-04-21</TempFlatEndDate>
+                        <TempFlatExtraAmt>400000</TempFlatExtraAmt>
+                        <OLifEExtension VendorCode="0253" />
+                     </SubstandardRating>
+                     <LifeParticipant PartyID="Insured_1">
+                        <LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+                     </LifeParticipant>
+                     <LineOfBusiness tc="4">Life</LineOfBusiness>
+                     <OLifEExtension VendorCode="0253">
+                        <MagnumCoverageDecison>
+                           <DecisionDate>2023-04-21</DecisionDate>
+                           <Code>n/a</Code>
+                           <Description>n/a</Description>
+                           <CodeList>
+                              <CodeInfo>
+                                 <Code>SKRN</Code>
+                                 <Description>Non-smoker rates to apply.</Description>
+                              </CodeInfo>
+                           </CodeList>
+                        </MagnumCoverageDecison>
+                     </OLifEExtension>
+                     <CommencementDate>2023-04-21</CommencementDate>
+                  </Coverage>
+                  <Coverage id="Coverage_2">
+                     <PlanName>Investor</PlanName>
+                     <ShortName>Investor</ShortName>
+                     <ProductCode>SAVEV1</ProductCode>
+                     <CurrentAmt>500</CurrentAmt>
+                     <LifeParticipant PartyID="Insured_1">
+                        <LifeParticipantRoleCode tc="1">1</LifeParticipantRoleCode>
+                     </LifeParticipant>
+                     <OLifEExtension VendorCode="0253">
+                        <FundAllocation>
+                           <FundCode>STRTT</FundCode>
+                           <PremiumAllocationPct>100</PremiumAllocationPct>
+                           <ChargeAllocationPct>0</ChargeAllocationPct>
+                        </FundAllocation>
+                        <FundAllocation>
+                           <FundCode>LSURE</FundCode>
+                           <PremiumAllocationPct>0</PremiumAllocationPct>
+                           <ChargeAllocationPct>0</ChargeAllocationPct>
+                        </FundAllocation>
+                     </OLifEExtension>
+                     <CommencementDate>2023-04-21</CommencementDate>
+                  </Coverage>
+                  <Coverage id="Coverage_3">
+                     <PlanName>Waiver of Premium</PlanName>
+                     <ShortName>Waiver of Premium</ShortName>
+                     <ProductCode>WPEV 1</ProductCode>
+                     <LifeParticipant PartyID="Insured_1">
+                        <LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+                     </LifeParticipant>
+                     <OLifEExtension VendorCode="0253">
+                        <MagnumCoverageDecison>
+                           <DecisionDate>2023-04-21</DecisionDate>
+                           <Code>WP</Code>
+                           <Description>Standard</Description>
+                        </MagnumCoverageDecison>
+                     </OLifEExtension>
+                     <CommencementDate>2023-04-21</CommencementDate>
+                  </Coverage>
+               </Life>
+               <ApplicationInfo>
+                  <HOReceiptDate>2023-04-21</HOReceiptDate>
+                  <SignedDate>2023-04-21</SignedDate>
+                  <PrefLanguage tc="9">en-us</PrefLanguage>
+                  <ApplicationType tc="2147483647">N</ApplicationType>
+                  <HOAssignedAppNumber>230421175531967</HOAssignedAppNumber>
+               </ApplicationInfo>
+               <OLifEExtension VendorCode="0253">
+                  <MagnumOverallDecison>
+                     <Code>Standard</Code>
+                     <Description>Standard</Description>
+                  </MagnumOverallDecison>
+               </OLifEExtension>
+               <RequirementInfo id="Req_1" AppliesToPartyID="Insured_1">
+                  <ReqCode>AGEAD</ReqCode>
+                  <ReqStatus tc="1">Pending</ReqStatus>
+                  <ReceivedDate>2023-04-21</ReceivedDate>
+               </RequirementInfo>
+               <RequirementInfo id="Req_2" AppliesToPartyID="Insured_1">
+                  <ReqCode>POA</ReqCode>
+                  <ReqStatus tc="1">Pending</ReqStatus>
+                  <ReceivedDate>2023-04-21</ReceivedDate>
+               </RequirementInfo>
+               <RequirementInfo id="Req_3" AppliesToPartyID="Insured_1">
+                  <ReqCode>FUTPY</ReqCode>
+                  <ReqStatus tc="1">Pending</ReqStatus>
+                  <ReceivedDate>2023-04-21</ReceivedDate>
+               </RequirementInfo>
+               <RequirementInfo id="Req_4" AppliesToPartyID="Insured_1">
+                  <ReqCode>DECLF</ReqCode>
+                  <ReqStatus tc="1">Pending</ReqStatus>
+                  <ReceivedDate>2023-04-21</ReceivedDate>
+               </RequirementInfo>
+               <PolNumber xmlns="">5003614110</PolNumber>
+            </Policy>
+            <CurrencyTypeCode tc="780">OLI_CURRENCY_TTD</CurrencyTypeCode>
+         </Holding>
+         <Party id="Insured_1">
+            <PartySysKey xmlns="">1745343</PartySysKey>
+            <PartyTypeCode tc="1">Person</PartyTypeCode>
+            <FullName>Bella  Adams</FullName>
+            <Person>
+               <FirstName>Bella</FirstName>
+               <LastName>Adams</LastName>
+               <MarStat tc="2">Single</MarStat>
+               <Gender tc="2">Female</Gender>
+               <BirthDate>1992-08-18</BirthDate>
+               <Age>30</Age>
+               <SmokerStat tc="1">Never used tobacco in any form.</SmokerStat>
+               <DriversLicenseNum>5871075</DriversLicenseNum>
+               <EstSalary>400000</EstSalary>
+               <BirthCountry tc="868">Trinidad &amp; Tobago</BirthCountry>
+               <Citizenship tc="868">Trinidad &amp; Tobago</Citizenship>
+               <EstGrossAnnualOtherIncome>400000</EstGrossAnnualOtherIncome>
+               <OLifEExtension VendorCode="0253">
+                  <IsPep>no</IsPep>
+                  <CompanyEmployee>no</CompanyEmployee>
+                  <AssuredAnnuitantType>Resident</AssuredAnnuitantType>
+                  <AgeAdmittance>yes</AgeAdmittance>
+                  <SelfEmployeed>no</SelfEmployeed>
+                  <PartTime>no</PartTime>
+                  <Region>Trinidad &amp; Tobago</Region>
+                  <EmployerAddress>St. Clair</EmployerAddress>
+                  <YearsAtEmployer>7</YearsAtEmployer>
+               </OLifEExtension>
+            </Person>
+            <Address>
+               <AddressTypeCode tc="1">Residence</AddressTypeCode>
+               <Line1>Maraval</Line1>
+               <City>Maraval</City>
+               <AddressCountryTC tc="868">Trinidad &amp; Tobago</AddressCountryTC>
+            </Address>
+            <Phone>
+               <PhoneTypeCode tc="12">Mobile</PhoneTypeCode>
+               <AreaCode>868</AreaCode>
+               <DialNumber>7014155</DialNumber>
+               <PrefPhone tc="1">Yes</PrefPhone>
+            </Phone>
+            <EMailAddress>
+               <AddrLine>bellaadams@gmail.com</AddrLine>
+            </EMailAddress>
+            <Employment>
+               <EmployerName>Office Solutions</EmployerName>
+               <Occupation>architect</Occupation>
+               <OLifEExtension>
+                  <EmployerAddress>St. Clair,St. Clair</EmployerAddress>
+                  <YearsAtEmployer>7</YearsAtEmployer>
+               </OLifEExtension>
+            </Employment>
+         </Party>
+         <Party id="Employer">
+            <PartyTypeCode tc="2">Organization</PartyTypeCode>
+            <FullName>Office Solutions</FullName>
+            <Address>
+               <AddressTypeCode tc="2">Organization</AddressTypeCode>
+               <Line1>St. Clair</Line1>
+               <City>St. Clair</City>
+               <AddressCountryTC tc="246">Barbados</AddressCountryTC>
+            </Address>
+         </Party>
+         <Party id="Agent_1">
+            <PartySysKey>AXXXX5</PartySysKey>
+            <FullName>Lenox Barrow</FullName>
+            <Person>
+               <FirstName>Lenox</FirstName>
+               <LastName>Barrow</LastName>
+            </Person>
+            <Address>
+               <Line1>411 Rodney Road</Line1>
+               <Line2>Lange  Park</Line2>
+               <City>Chaguanas</City>
+               <AddressCountryTC tc="868">Trinidad &amp; Tobago</AddressCountryTC>
+            </Address>
+         </Party>
+         <Party id="Agency_1">
+            <PartySysKey>22500</PartySysKey>
+            <FullName>Lenox Barrow</FullName>
+            <Person>
+               <FirstName>Lenox</FirstName>
+               <LastName>Barrow</LastName>
+            </Person>
+            <Address>
+               <Line1>411 Rodney Road</Line1>
+               <Line2>Lange  Park</Line2>
+               <City>Chaguanas</City>
+               <AddressCountryTC tc="868">Trinidad &amp; Tobago</AddressCountryTC>
+            </Address>
+         </Party>
+         <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Insured_1" id="Insured">
+            <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+            <RelatedObjectType tc="6">Party</RelatedObjectType>
+            <RelationRoleCode tc="32">Insured</RelationRoleCode>
+         </Relation>
+         <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Insured_1" id="Owner">
+            <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+            <RelatedObjectType tc="6">Party</RelatedObjectType>
+            <RelationRoleCode tc="8">Owner</RelationRoleCode>
+         </Relation>
+         <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Insured_1" id="Payer">
+            <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+            <RelatedObjectType tc="6">Party</RelatedObjectType>
+            <RelationRoleCode tc="31">Payer</RelationRoleCode>
+         </Relation>
+         <Relation OriginatingObjectID="Insured_1" RelatedObjectID="Employer" id="RELATION_EMPLOYER_1">
+            <OriginatingObjectType tc="6">Party</OriginatingObjectType>
+            <RelatedObjectType tc="6">Party</RelatedObjectType>
+            <RelationRoleCode tc="7">Employer</RelationRoleCode>
+         </Relation>
+         <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Agent_1" id="Servicing_Agent">
+            <OriginatingObjectType tc="4" />
+            <RelatedObjectType tc="6" />
+            <RelationRoleCode tc="37">22500</RelationRoleCode>
+            <InterestPercent>100</InterestPercent>
+         </Relation>
+         <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Agency_1" id="RELATION_AGENT_1">
+            <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+            <RelatedObjectType tc="6">Party</RelatedObjectType>
+            <RelationRoleCode tc="154">Servicing Agency</RelationRoleCode>
+            <InterestPercent>100</InterestPercent>
+         </Relation>
+      </OLifE>
+   </TXLifeRequest>
+</TXLife>

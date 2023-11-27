@@ -1,0 +1,17 @@
+http:
+   host: "localhost"   
+   port: "8083"
+   path: "/test"
+   
+   
+http_Req:
+  host: "localhost"
+  port: "8089"
+  path: "/api/"
+  
+http_Req_ApiGateway:
+  host: "localhost"
+  port: "8081"
+  path: "/api/"
+
+  

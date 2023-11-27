@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="4a8c9bd3-7e5e-450c-a2a2-61004e9af159" >
+		<file:connection workingDir="C:\Users\venkatesh.kamera\Documents\inbound\venky" />
+	</file:config>
+	<file:config name="File_Config1" doc:name="File Config" doc:id="f44e7543-503d-4ac9-953f-b2c0fa32b46c" >
+		<file:connection workingDir="C:\Users\venkatesh.kamera\Documents\inbound\venky" />
+	</file:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="6489e934-1c22-4877-89d6-d8b3d29a6f09" >
+		<jms:active-mq-connection />
+	</jms:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3a3d6ed6-5564-4f18-93d5-ef4f6ea34dd1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="activemqFlow" doc:id="8b38babb-f94d-4044-ba38-2b7386170a35" >
+		<http:listener doc:name="Listener" doc:id="e6cd6f7e-811a-4444-b84f-e8b7006b977b" path="/sendactivemq" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Log the payload" doc:id="b421f65a-a129-410c-b357-f76b782623a6" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="bf663e4d-1b4f-4384-a71d-48f53979796f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:publish doc:name="Publish-ActiveMQ_Queue01" doc:id="bd92409b-62bf-4895-a9cd-05b1f4a396d4" config-ref="JMS_Config" destination="ActiveMQ_Queue01"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f7a93e74-8d52-49fb-9782-b543e295fcda" message='#["The end"]'/>
+	</flow>
+	<flow name="activemqFlow2" doc:id="1c35873b-6182-49bd-8758-a701575a240d" >
+		<scheduler doc:name="Scheduler" doc:id="07f57304-6f18-4685-9c9c-b76998288758" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="3ade7322-6b3f-43b1-8305-0dbc98932727" message='#["logger started"]'/>
+		<file:list doc:name="List" doc:id="4c6ad546-28e9-4c1c-850f-6faaf4509ac1" directoryPath="C:\Users\venkatesh.kamera\Documents\inbound\venky" />
+		<logger level="INFO" doc:name="fileNames-print" doc:id="b01836fb-ab9c-4938-80de-a88f5e0dff51" message='#[%dw 2.0&#10;output application/json&#10;---&#10;(payload map(item, index) -&gt;{&#10;	"name":(item.attributes.name)&#10;}) map $.name]'/>
+		<ee:transform doc:name="Transform Message" doc:id="93c48258-8820-448a-9881-43c94e275501" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload..payload.prices]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="f37142ab-993b-45cb-9b5f-aadb31e962ed">
+			<choice doc:name="Choice" doc:id="12e47c86-63fd-4d55-8995-0d6875eda3cd" >
+				<when expression='#[payload.empID == "EMP1"]' >
+					<jms:publish doc:name="EMP1_Publish-ActiveMQ_Queue01" doc:id="9a70be1e-6797-46fd-841b-8cb18151a20f" config-ref="JMS_Config" destination="ActiveMQ_Queue01" />
+				</when>
+				<when expression='#[payload.empID == "EMP2"]' >
+					<jms:publish doc:name="EMP2_Publish-ActiveMQ_Queue01" doc:id="ca22acfd-e8be-45bb-aa07-d10383121734" config-ref="JMS_Config" destination="ActiveMQ_Queue03" />
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="Nothing-to-Print" doc:id="09d79dba-056c-4476-bb66-c6c58a3204d0" message='#["Nothing has been matched"]'/>
+				</otherwise>
+			</choice>
+			<logger level="INFO" doc:name="Logger" doc:id="47a5021f-f596-47f5-9a07-5f88ca073dc6" message="#[payload]"/>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="45653122-8b32-4704-b090-0a49b7e6c6df" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="cf421412-2dbe-4dfa-a370-05ca77301401" message='#["logger ended"]'/>
+	</flow>
+	<flow name="activemqFlow10" doc:id="72f88c19-cda3-412d-8245-1318b5a45c64" >
+		<jms:listener doc:name="On New Message" doc:id="d860f894-6a4d-4a0e-8e04-8f66a5ba6b62" config-ref="JMS_Config" destination="ActiveMQ_Queue01" inboundContentType="application/json" numberOfConsumers="1" ackMode="MANUAL">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+			<jms:response persistentDelivery="true" />
+		</jms:listener> 
+		<logger level="INFO" doc:name="Logger" doc:id="094614e2-91a8-4561-b96e-add4c413452c" message='"From listener, subscriber 01 " #[payload]'/>
+		<set-variable value="#[attributes.ackId]" doc:name="Set Variable" doc:id="a1777c95-02eb-4029-a1b5-fd0dfa2ced28" variableName="ackId"/>
+		<logger level="INFO" doc:name="Logger" doc:id="92013694-b8dc-46c0-abd9-e2227e00cdb0" message="#[payload]"/>
+		<jms:ack doc:name="Ack" doc:id="0aa34963-5199-48e6-ae48-e4472b0a0d32" ackId="#[vars.ackId]"/>
+	</flow>
+</mule>

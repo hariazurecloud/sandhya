@@ -1,0 +1,42 @@
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="06e9ab33-35df-4735-a201-4080b7556b5a">
+<http:listener-connection host="0.0.0.0" port="8082"/>
+</http:listener-config>
+<flow name="system-api-program-2Flow" doc:id="6d1528bb-62ef-42a6-b471-a2328c71905e">
+<http:listener doc:name="Listener" doc:id="8014150a-20bb-4d56-b211-4f92a336fad8" config-ref="HTTP_Listener_config" path="/systemRecords"/>
+<logger level="INFO" doc:name="start Log" doc:id="bee01b16-3cc4-43a5-b4dd-9bc3595085c5" message="started the system api flow"/>
+<choice doc:name="Choice" doc:id="21e97729-dc12-4129-9c00-35d2d8bdd6d9">
+<when expression="#[payload.orderNumber == '2']">
+<try doc:name="Try" doc:id="f1c02ec6-b42c-4371-b338-54e10520dc14">
+<raise-error doc:name="Raise error" doc:id="e9114c72-9122-4ff7-97e2-8acc1e8ecbe3" type="CUSTOM:ROUTING" description=""Error occured as orderNumber is '2'""/>
+<error-handler>
+<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="88750781-46bf-497a-9a92-bde40e43edde" type="CUSTOM:ROUTING">
+<logger level="ERROR" doc:name="Logger" doc:id="dec24d18-18db-4918-8906-bee463164fcd" message="error occured as orderNumber is "2""/>
+<ee:transform doc:name="Transform Message" doc:id="291d877b-67c0-48b6-8730-16adc67321bf">
+<ee:message>
+<ee:set-payload><![CDATA[ %dw 2.0 output application/json 
+ 
+ ---
+  0 ]]>
+</ee:set-payload>
+</ee:message>
+</ee:transform>
+</on-error-continue>
+</error-handler>
+</try>
+</when>
+<otherwise>
+<ee:transform doc:name="Transform Message" doc:id="46812934-0bdc-46d3-9d89-3f5a9dc2f5df">
+<ee:message>
+<ee:set-payload><![CDATA[ %dw 2.0 output application/json 
+ --- 
+ (attributes.queryParams.orderPrice as Number * attributes.headers.quantity as Number) as Number ]]>
+</ee:set-payload>
+</ee:message>
+<ee:variables> </ee:variables>
+</ee:transform>
+</otherwise>
+</choice>
+<logger level="INFO" doc:name="Logger" doc:id="8bea1b5a-d2d0-497d-9c1b-209d2074bdc5" message="updatedOrderPrice is sent back to process-API-flow"/>
+</flow>
+</mule>

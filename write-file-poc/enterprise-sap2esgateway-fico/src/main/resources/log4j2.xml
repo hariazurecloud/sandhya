@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="debug">
+    <Appenders>
+      <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSSZ}] %-5p %X{NODE_NAME} SAP2ES_FICO [%t] %X{messageId}%r %X{messageSource} %X{messageAction} %X{resourceId} %X{resourceName} %c com.umgi.es.sap2esfico %X{process_state} %m %n %ex{full}" />
+        </Console>
+        <JDBC name="databaseAppender" tableName="es_logs">
+            <ConnectionFactory class="com.umgi.es.common.util.log.enterpriselogger.ConnectionFactory" method="getDatabaseConnection" />
+            <Column name="utc_created_date" isEventTimestamp="true" />
+            <Column name="log_timestamp" pattern="%d{yyyy-MM-dd HH:mm:ss.SSSZ}" isUnicode="false"/>
+            <Column name="log_level" pattern="%level" isUnicode="false"/>
+            <Column name="node_name" pattern="%X{node_name}" isUnicode="false"/>
+            <Column name="micro_service_name" pattern="SAP2ES_FICO" isUnicode="false"/>
+            <Column name="thread_id" pattern="[%t]" isUnicode="false"/>
+            <Column name="message_id" pattern="%X{messageId}" isUnicode="false"/>
+            <Column name="log_elapsed_time" pattern="%r" isUnicode="false"/>
+            <Column name="message_source" pattern="%X{messageSource}" isUnicode="false"/>
+            <Column name="message_action" pattern="%X{messageAction}" isUnicode="false"/>
+            <Column name="resource_id" pattern="%X{resourceId}" isUnicode="false"/>
+            <Column name="resource_name" pattern="%X{resourceName}" isUnicode="false"/>
+            <Column name="log_category" pattern="%logger" isUnicode="false"/>
+            <Column name="logger_name" pattern="com.umgi.es.sap2esfico" isUnicode="false"/>
+            <Column name="log_code" pattern="%X{process_state}" isUnicode="false" />
+            <Column name="log_message" pattern="%message" isUnicode="false"/>
+            <Column name="error_details" pattern="%ex{full}" isUnicode="false"/>
+            <Column name="src_uid" pattern="%X{sourceId}" isUnicode="false"/>
+        </JDBC>
+    </Appenders>
+
+    <Loggers>
+
+         <!-- CXF is used heavily by Mule for web services -->
+        <AsyncLogger name="org.apache.cxf" level="WARN"/>
+
+        <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
+        
+
+        <!-- Reduce startup noise -->
+		
+		<!-- INFO Packages -->
+		<AsyncLogger name="com.umgi.es" level="INFO"/>
+		<AsyncLogger name="com.umgi.es.common.util.log.enterpriselogger.agents" level="INFO"/>
+		<AsyncLogger name="com.umgi.es.common.util.serviceconfig" level="INFO"/>
+	
+
+
+        <!-- ERROR Packages -->
+		<AsyncLogger name="org.jetel" level="ERROR"/>
+		<AsyncLogger name="org.apache" level="ERROR"/>
+		<AsyncLogger name="org.springframework" level="ERROR"/>
+		<AsyncLogger name="com.umgi.es.common.util.log.enterpriselogger.agents" level="ERROR"/>
+		<AsyncLogger name="com.umgi.es.common.util.serviceconfig" level="ERROR"/> 
+		<AsyncLogger name="com.mulesoft.mule.transport.jms.EeJmsMessageDispatcher" level="ERROR"/> 
+		<AsyncLogger name="com.mulesoft.mule.transport" level="ERROR"/>
+        <AsyncLogger name="Tracking" level="ERROR"/>
+		<AsyncLogger name="com.microsoft.aad.adal4j" level="ERROR"/>
+		<AsyncLogger name="com.mulesoft" level="ERROR"/>
+		<AsyncLogger name="org.quartz" level="ERROR"/>	
+		<AsyncLogger name="org.mule.retry.notifiers" level="ERROR"/>
+		<AsyncLogger name="org.mule" level="ERROR"/>
+		<AsyncLogger name="com.umgi.es.connectors.enterpriseglobalparams.agents.DefaultSplashScreenAgent" level="FATAL"/>		
+      
+	  <!-- Fatal Packages -->
+	  <AsyncLogger name="com.mulesoft.mule.transport.sap.jco3.SapJcoTraceListener" level="FATAL"/>
+	  <AsyncLogger name="org.quartz.core.JobRunShell" level="FATAL"/>
+	  <AsyncLogger name="org.quartz.core.ErrorLogger" level="FATAL"/>
+	  
+		
+        <AsyncRoot level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="databaseAppender"/>
+        </AsyncRoot>
+    </Loggers>
+
+</Configuration>

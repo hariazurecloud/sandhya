@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bac67951-d557-4773-8003-e5e7d5a17a87" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="c3d6e6ac-7725-4357-842c-ed99e09471a5" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\input" />
+	</file:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="69716ce2-3ed4-4d27-bba2-7eb14413707d" >
+		<http:request-connection connectionIdleTimeout="100000" >
+		</http:request-connection>
+	</http:request-config>
+	<flow name="-newpolicy-sytem-apiFlow" doc:id="bb898b25-b51d-4e83-828d-2fe91bdf129a" >
+		<http:listener doc:name="Listener" doc:id="4cb9b679-78a2-452b-b8a7-0bc77edefa72" config-ref="HTTP_Listener_config" path="/recievedPolicy"/>
+		<set-variable value='#[%dw 2.0&#10;    output application/json&#10;    ---&#10;    payload.TXLife.TXLifeRequest.TransRefGUID  ++ ".xml"]' doc:name="appId" doc:id="973119c8-ecc6-4510-98b3-18864a5bc272" variableName="appId"/>
+		<file:write doc:name="Writing the xml to input folder" doc:id="64015180-264a-43e2-a4c1-8fb276ba36b3" config-ref="File_Config" path="#[vars.appId]" mode="CREATE_NEW"/>
+		<logger level="INFO" doc:name="data written in file sucessfully " doc:id="0a945674-46c5-456e-9512-d33c83b4f363" message="data written in file sucessfully "/>
+		<http:request method="POST" doc:name="RequestTo-processAPI" doc:id="729876f0-dd29-4b55-a4e3-1976c59c3fd0" config-ref="HTTP_Request_configuration" url="http://localhost:8081/createPolicy" />
+		<logger level="INFO" doc:name="transformed data successfully" doc:id="a2771de6-24ae-4ac9-b929-04705defcd3f" message="transformed data successfully"/>
+	</flow>
+</mule>

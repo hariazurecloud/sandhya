@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:enterpriselogger="http://www.mulesoft.org/schema/mule/enterpriselogger"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/enterpriselogger http://www.mulesoft.org/schema/mule/enterpriselogger/current/mule-enterpriselogger.xsd">
+	
+	<flow name="apigateway-mock-flowFlow1" doc:name="apigateway-mock-flowFlow1">
+		<http:inbound-endpoint exchange-pattern="request-response"
+			doc:name="HTTP" address="http://localhost:9095/apigateway" />
+		<enterpriselogger:info config-ref="SAP2esFicoLogger"
+			logMessage="Request arrived at ApiGateway ::::::::::#[payload]:::::::::::::"
+			processState="END" doc:name="EnterpriseLogger" />
+	</flow>
+	
+</mule>

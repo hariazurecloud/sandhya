@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a7731c9b-2e4d-41dd-94e6-1734ee6ee9ad" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<flow name="requestor-serverFlow" doc:id="c1029134-53bc-44be-90a2-fc87f4b4440d" >
+		<http:listener doc:name="Listener" doc:id="8501bdae-344b-4f20-882c-45e89791bae7" config-ref="HTTP_Listener_config" path="/Ingenium"/>
+		<sftp:write doc:name="Write" doc:id="376208f2-77e8-4d29-8cfb-c5d929eaa71a" />
+		<set-payload value='{&#10;  "Success": false,&#10;  "ErrorMessage": ""&#10;}' doc:name="Set Payload" doc:id="6fcd1304-8840-4bac-b7fc-361b19fb78f2" />
+	</flow>
+</mule>

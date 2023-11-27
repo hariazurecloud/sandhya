@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7d9ffe55-83c5-4367-8f93-10de07fd34b1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="3c399ebc-3784-4d9a-8dc4-3c3d65c3ea0d" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\input" />
+	</file:config>
+	<flow name="write-file-pocFlow" doc:id="99efdb4e-8a7e-4401-9fc6-0b2bf3f0f017" >
+		<http:listener doc:name="Listener" doc:id="3d44f012-c67a-4111-a594-aa7f931589f0" config-ref="HTTP_Listener_config" path="/write"/>
+		<set-variable value='#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.TXLife.TXLifeRequest.TransRefGUID  ++ ".xml"]' doc:name="Set Variable" doc:id="732451ee-d89e-4de0-a166-9e1d95f37d5f" variableName="appId"/>
+		<file:write doc:name="Write" doc:id="ae415fe2-2dde-475d-b391-a61f42660850" config-ref="File_Config" mode="CREATE_NEW" path="#[vars.appId]"/>
+	</flow>
+</mule>

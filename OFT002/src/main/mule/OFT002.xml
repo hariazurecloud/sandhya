@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="75e7a56c-1c32-4d5e-9a77-aff2a48791ee" >
+		<http:request-connection host="ingenium-mock.centralindia.cloudapp.azure.com" />
+	</http:request-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="aafe17d5-d808-454f-b5bf-bc296f0ba617" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
+	</db:config>
+	<configuration doc:name="Configuration" doc:id="9d3f771c-a7ac-41ca-b3ea-8d63b6d662d8" defaultErrorHandler-ref="global_error_handler" />
+	<flow name="OFT-responseFlow" doc:id="0901affd-4777-4a9b-91fc-68a107a190e6" >
+		<scheduler doc:name="pollResponseFromOFT/IMP" doc:id="9c20e8bd-1745-42ce-9f51-9f81f8d1a091" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="scheduler has started" doc:id="c55741a5-edd5-439d-85d3-202cc3fa049c" message="scheduler has started" />
+		<db:select doc:name="SelectDataWithawaitingForResponse" doc:id="e82cd277-552e-4b95-907f-178b86a6db24" config-ref="Database_Config">
+			<db:sql><![CDATA[select TransRefGUID,RequestType from UWProToGG.Transcations where Message =:Message ]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	 Message: "awaitingForResponse",
+	 
+	
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="FilterPayload" doc:id="629ebd4c-52cc-4b54-9b7b-d5a99a8ce5ba">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter ((item, index) -> item.RequestType == "OFT") ]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+		<foreach doc:name="For Each" doc:id="c4986ec6-5268-4611-80fb-66a1170cc1af" >
+			<set-variable value='#[payload.RequestType]' doc:name="RequestCheck" doc:id="c646ab44-36b1-449e-8921-61b4a20ab66c" variableName="RequestCheck" />
+			<choice doc:name="checkForOFTData" doc:id="f282e3b9-d459-456e-94a6-a36c1ffedf38">
+			<when expression='#[vars.RequestCheck == "OFT"]'>
+				<logger level="INFO" doc:name="payload" doc:id="fc14cf20-d811-42b8-8c71-9c2e5f29be32" message="#[payload]" />
+					<db:update doc:name="UpdateMessage---&gt;completed" doc:id="34297092-2332-460e-8d4f-832bebac9f76" config-ref="Database_Config">
+				<db:sql><![CDATA[update UWProToGG.Transcations  set  LastExecuted= :LastExecuted, WasProcessed= :WasProcessed, Message= :Message, RequestStatus= :RequestStatus where TransRefGUID= :TransRefGUID
+]]></db:sql>
+				<db:input-parameters><![CDATA[#[{
+    LastExecuted: now(),
+    WasProcessed: "1", 	
+    Message: "completed", 
+    TransRefGUID: payload.TransRefGUID,
+    RequestStatus: "completed"
+
+
+    }]]]></db:input-parameters>
+			</db:update>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="1f043fb1-8287-4dc7-812a-bbab09d2aaa9" message="NO data available for OFT " />
+			</otherwise>
+		</choice>
+		</foreach>
+	
+</flow>
+</mule>

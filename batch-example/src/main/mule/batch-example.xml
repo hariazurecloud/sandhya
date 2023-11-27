@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="77e2ac1a-2e0f-4989-a4bb-b1d7a443a643" >
+		<http:request-connection host="ingenium-mock.centralindia.cloudapp.azure.com" />
+	</http:request-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="6d312de8-84da-4ea2-8ba3-4194a42ab2fe" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
+	</db:config>
+	<flow name="ingenium-responseFlow" doc:id="b0b4f6c2-6d77-4bf1-a4ef-1dfbe3493380" >
+		<scheduler doc:name="Scheduler" doc:id="4fcb28bf-a255-443e-a9d6-30bf5c376edf" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="75884095-446a-496a-94ba-09db57877610" message="scheduler has started" />
+		<db:select doc:name="Select" doc:id="d59c47e5-e76c-4411-a9ca-81007ac59d10" config-ref="Database_Config">
+			<db:sql><![CDATA[select TransType, TransRefGUID from UWProToGG.Transcations where Message =:Message ]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	 Message: "awaitingForResponse"
+	
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="764c385e-699a-4066-ad33-ec9bdcad741a">
+				<when expression='#[payload.TransType == "New Business" or payload.TransType == "1125"]'>
+				<foreach doc:name="For Each" doc:id="90915fe9-fbb1-4ab1-ad83-f2c56373a8aa">
+					<ee:transform doc:name="Transform Message" doc:id="9d327c25-879f-406b-b78f-6bc6d766df41">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+	payload.TransRefGUID as String 
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+					<set-variable value="#[payload]" doc:name="Set Variable" doc:id="0af65040-967d-47a4-a6d2-84b5882fef09" variableName="transRefGUID" />
+					<http:request method="GET" doc:name="Request" doc:id="b12857d1-1315-4438-8407-a5e10110184d" config-ref="HTTP_Request_configuration" responseTimeout="10000" path="/details">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	applicationId : payload
+}]]]></http:query-params>
+		</http:request>
+					<set-variable value="#[payload.Output.ClientInfoList.ClientID[0]]" doc:name="Set Variable" doc:id="dfafe313-ed68-475e-a831-b5c6137733a9" variableName="clientId" />
+					<logger level="INFO" doc:name="Logger" doc:id="bceb79c9-ea01-4442-8026-7a08708bedc0" message="#[payload]" />
+					<db:update doc:name="Update" doc:id="e84c33a1-0ef9-43a1-8daa-fc3ecf8a31a8" config-ref="Database_Config">
+				<db:sql><![CDATA[update UWProToGG.Transcations  set  LastExecuted= :LastExecuted, Id= :Id, WasProcessed= :WasProcessed, Message= :Message, RequestStatus= :RequestStatus where TransRefGUID= :TransRefGUID
+]]></db:sql>
+				<db:input-parameters><![CDATA[#[{
+    LastExecuted: now(),
+    Id : vars.clientId,
+    WasProcessed: "1", 	
+    Message: "completed", 
+    TransRefGUID: vars.transRefGUID,
+    RequestStatus: "completed"
+
+
+    }]]]></db:input-parameters>
+			</db:update>
+		</foreach>
+			</when>
+			<when expression='#[payload.TransType == "General Requirements Order Request"]'>
+				<foreach doc:name="For Each" doc:id="0e5fa9da-e5e6-4918-b660-cd780cc210fd" >
+					<logger level="INFO" doc:name="Logger" doc:id="a5649456-ec87-4aed-a417-1d6832e88605" message="data is of OFT response" />
+					<db:update doc:name="Update" doc:id="229bebb3-1f5a-453f-835b-fcfdb357e44a" config-ref="Database_Config">
+					<db:sql><![CDATA[update UWProToGG.Transcations  set  LastExecuted= :LastExecuted, WasProcessed= :WasProcessed, Message= :Message, RequestStatus= :RequestStatus where TransRefGUID= :TransRefGUID
+]]></db:sql>
+					<db:input-parameters><![CDATA[#[{
+    LastExecuted: now(),
+    WasProcessed: "1", 	
+    Message: "completed", 
+    TransRefGUID: 	payload.TransRefGUID,
+    RequestStatus: "completed"
+
+
+    }]]]></db:input-parameters>
+				</db:update>
+				</foreach>
+			</when>
+			<otherwise>
+					<logger level="INFO" doc:name="Logger" doc:id="f5760dfa-98c0-4f58-9b03-e54ccb963fd8" message="No awaiting Id For Response" />
+				</otherwise>
+			</choice>
+	</flow>
+</mule>

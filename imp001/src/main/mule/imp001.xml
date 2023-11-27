@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3a3b1255-6737-466b-92c4-d28c66556821" >
+		<http:listener-connection host="0.0.0.0" port="8089" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="6dd5b664-39d1-456d-a38b-0de9ee8df03c" >
+		<http:request-connection protocol="HTTPS" >
+			<http:authentication >
+				<http:basic-authentication username="mwusr_api_tst" password="Today123" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<file:config name="ReadRiskNodeFromFile" doc:name="File Config" doc:id="e0c4cfde-4c10-4329-86a2-66c9dea83a99" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\RiskNode" />
+	</file:config>
+	<configuration doc:name="Configuration" doc:id="9594041d-b5ca-45bc-884d-23b5c1f63987" defaultErrorHandler-ref="global_error_handler" />
+	<flow name="imp001Flow" doc:id="707d00a7-c1ca-4680-9673-13d7a4f2181b" >
+		<http:listener doc:name="Listener" doc:id="086b8a91-c1f8-4eb7-b79d-d46d2bebe880" config-ref="HTTP_Listener_config" path="/imp001"/>
+		<set-variable value="#[payload]" doc:name="OriginalPayload" doc:id="8dd255dd-ee46-4213-8e0d-1f696b092a26" variableName="OriginalPayload"/>
+		<ee:transform doc:name="Retrive-Name&amp;DateOfBirth" doc:id="8a35b4d6-eb9f-466c-a52b-15ef1f48f464" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var input1=payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "32") map ((item, index) -> item.@RelatedObjectID)
+ 
+var input2= payload.TXLife.TXLifeRequest.OLifE.*Party
+---
+ 
+input1 map ((id, index) ->{
+     FirstName: ((input2 filter $[@"id"] == id)[0].Person.FirstName),
+     Lastname:((input2 filter $[@"id"] == id)[0].Person.LastName),
+     BirthDate:((input2 filter $[@"id"] == id)[0].Person.BirthDate)
+} )
+
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="appId" ><![CDATA[%dw 2.0
+    output application/java
+    ---
+    payload.TXLife.TXLifeRequest.TransRefGUID  ++ ".xml"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="covertArrayIntoString" doc:id="777c1ca8-4ca0-4828-8632-2dad4ed72e55" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="firstName" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.FirstName joinBy "" ]]></ee:set-variable>
+				<ee:set-variable variableName="lastName" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.Lastname joinBy ""]]></ee:set-variable>
+				<ee:set-variable variableName="dateOfBirth" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.BirthDate joinBy ""]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="c17f658a-b1d2-4918-92c3-451f10c609cf" >
+			<http:request method="GET" doc:name="GetImpairments" doc:id="6ae92eab-0dd3-4997-afb6-f60db11817ab" config-ref="HTTP_Request_configuration" url="https://gssl-tst.outsystemsenterprise.com/UWProAPI/rest/UWPro/GetImpairments">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	Firstname : vars.firstName,
+	DateOfBirth : vars.dateOfBirth,
+	Lastname : vars.lastName
+}]]]></http:query-params>
+		</http:request>
+		</until-successful>
+		<logger level="INFO" doc:name="ResponseFromImpairmentsApi" doc:id="01b9755b-c953-42a7-b49b-c6d7aa1acb44" message="#[payload]"/>
+		<ee:transform doc:name="PayloadFromImpairments" doc:id="bca505cd-86c1-4514-afac-02b0c9755076" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "Output": {
+    "Health": [
+      {
+        "ID": 1234567891234567,
+        "ImpairmentCode": "12098",
+        "ImpairmentDescription": "this is due to cancer",
+        "BaseCurrency": "Indian Rupee",
+        "Region": "India",
+        "MemberID": 8797,
+        "internal_mem_id": 1234567891234567,
+        "first_name":"Kennedi",
+        "last_name": "Geiger",
+        "Gender": "Male",
+        "dob": "1986-10-23",
+        "claim_date": "2014-12-31",
+        "claim_amount": 0.1
+      }
+    ],
+    "Admin": [
+      {
+        "Region": "India",
+        "ClientId": "3456",
+        "FirstName": "Kennedi",
+        "LastName": "Geiger",
+        "Sex": "Male",
+        "DateOfBirth": "1986-10-23",
+        "ImpairmentCode": "A1209",
+        "ImpairmentDescription": "Hi welcome to india",
+        "DecisionDate": "2023-08-12",
+        "Decision": "",
+        "ApplicationDate": "2014-12-31",
+        "Occupation": ""
+      }
+    ],
+    "Life": [
+      {
+        "Surname": "Willams",
+        "Firstname": "Smith",
+        "Middlename1": "chay",
+        "Middlename2": "john",
+        "Sex": "Male",
+        "Birthdate": "1986-10-23",
+        "Occupation": "self-employed",
+        "CompanyCode": "908",
+        "CompanyName": "IDC",
+        "ApplicationDate": "2014-12-31",
+        "DecisionDate": "2014-12-31",
+        "DecisionCode": "34",
+        "Decision": "hospitalized",
+        "MedicalExaminationDate": "2014-12-31",
+        "ImpairmentSequence": 1234567891234567,
+        "ImpairmentCode": "3445",
+        "ImpairmentDescription": "he is hospitalized",
+        "Height": "5.6",
+        "Weight": "80",
+        "Pulse": "75/80",
+        "Bloodpressure": "56",
+        "Chest": "23",
+        "Abdomen": "12",
+        "ResidenceCode": "3455",
+        "ResidenceName": "Ashoka Residency",
+        "Comment": "Hi This person is hospitalized"
+      }
+    ]
+  },
+  "Result": {
+    "Success": true,
+    "ErrorMessage": ""
+  }
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f11e84ab-59b6-47fb-8498-15596f52773e" message="#[payload]"/>
+		<ee:transform doc:name="JSON-TO-XML" doc:id="19b4d5c9-461c-449f-8c6f-b22c67642a45" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+Risk @(xmlns: ""): {
+
+OLifeExtension : {
+    ImpairmentHistory:{
+        ImpairmentHistoryType @(tc: "2"):"Health DB",
+    Health:[
+        {
+            FirstName:payload.Output.Health.first_name,
+            Region:payload.Output.Health.Region,
+            Gender:payload.Output.Health.Gender,
+            ClaimDate:payload.Output.Health.claim_date,
+            Birthdate:payload.Output.Health.dob
+        }
+    ]},
+      ImpairmentHistory:{
+          ImpairmentHistoryType @(tc: "3"):"Admin Systems",
+    Admin:[
+        {
+            Region:payload.Output.Admin.Region,
+            DateOfBirth:payload.Output.Admin.DateOfBirth,
+                        ApplicationDate:payload.Output.Admin.ApplicationDate,
+                        DecisionDate:payload.Output.Admin.DecisionDate,
+                        Sex:payload.Output.Admin.Sex
+
+        }
+    ]},
+    ImpairmentHistory:{
+          ImpairmentHistoryType @(tc: "1"):"Life DB",
+    Life:[
+        {
+            SurName:payload.Output.Life.Surname,
+            Sex:payload.Output.Life.Sex,
+            MedicalExaminationDate:payload.Output.Life.MedicalExaminationDate,
+            CompanyName:payload.Output.Life.CompanyName,
+            Comment:payload.Output.Life.Comment
+        }
+    ]}
+
+}}
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="Risk-impairmentsHistory" doc:id="bd1b2ff9-dc7a-414f-8ca6-9c2581032d46" variableName="impairmentsHistory"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9431127b-b85a-4e72-a413-958e252ae697" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="ad0e3742-9177-4677-a4ed-35cfd6e6b9e3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+  
+---
+{
+  TXLife @(xmlns: "http://ACORD.org/Standards/Life/2", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation": "http://ACORD.org/Standards/Life/2 TXLife2.21.90.xsd"):{
+    UserAuthRequest: {
+      UserLoginName: vars.OriginalPayload.TXLife.UserAuthRequest.UserLoginName,
+      UserPswd: {
+          CryptType: vars.OriginalPayload.TXLife.UserAuthRequest.UserPswd.CryptType,
+          Pswd : ""
+      },
+      UserDate: vars.OriginalPayload.TXLife.UserAuthRequest.UserDate,
+      UserTime :vars.OriginalPayload.TXLife.UserAuthRequest.UserTime,
+      VendorApp: {
+    VendorName @(VendorCode: ""):vars.OriginalPayload.TXLife.UserAuthRequest.VendorApp.VendorName,
+    AppName: vars.OriginalPayload.TXLife.UserAuthRequest.VendorApp.AppName
+  }
+
+    },
+    TXLifeRequest: {
+      TransRefGUID: vars.OriginalPayload.TXLife.TXLifeRequest.TransRefGUID,
+        TransType @(xmlns: "", tc: "1122"): "General Requirement Status/Result Transmittal",
+      TransExeDate : vars.OriginalPayload.TXLife.TXLifeRequest.TransExeDate,
+      TransExeTime : vars.OriginalPayload.TXLife.TXLifeRequest.TransExeTime,
+      TransMode @(tc :"2"): vars.OriginalPayload.TXLife.TXLifeRequest.TransMode,
+      NoResponseOK @(tc :"0"): vars.OriginalPayload.TXLife.TXLifeRequest.NoResponseOK,
+      TestIndicator @(tc : "1"): vars.OriginalPayload.TXLife.TXLifeRequest.TestIndicator,
+      OLifE : {
+      SourceInfo: {
+         CreationDate: vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationDate,
+         CreationTime:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationTime,
+         SourceInfoName: vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoName
+      },
+      Holding @(id : vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.@id) : {
+        Policy @(CarrierPartyID : vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.@CarrierPartyID) :{
+        PolNumber : vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PolNumber,
+        LineOfBusiness @(tc :vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.LineOfBusiness.@tc): vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.LineOfBusiness,
+        CarrierCode: vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.CarrierCode,
+            PaymentMode @(tc: vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PaymentMode.@tc): vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PaymentMode,
+            PaymentAmt: vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PaymentAmt,
+
+        },
+         Life: {
+    (vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.Life.*Coverage map (coverage) -> {
+      Coverage @(id: coverage.@id): {
+        PlanName: coverage.PlanName,
+        ProductCode: coverage.ProductCode,
+        LifeCovStatus @(tc: coverage.LifeCovStatus.@tc): coverage.LifeCovStatus,
+        IndicatorCode @(tc: coverage.IndicatorCode.@tc): coverage.IndicatorCode,
+        CurrentAmt: coverage.CurrentAmt,
+        InitCovAmt: coverage.InitCovAmt,
+        LifeParticipant @(PartyID: coverage.LifeParticipant.PartyID): {
+          LifeParticipantRoleCode @(tc: coverage.LifeParticipant.LifeParticipantRoleCode.@tc): coverage.LifeParticipant.LifeParticipantRoleCode,
+          TobaccoPremiumBasis @(tc: coverage.LifeParticipant.TobaccoPremiumBasis.@tc): coverage.LifeParticipant.TobaccoPremiumBasis,
+          UnderwritingClass @(tc: coverage.LifeParticipant.UnderwritingClass.@tc): coverage.LifeParticipant.UnderwritingClass
+        }
+      }
+    })
+  } ,
+  ApplicationInfo:{
+      TrackingID:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.TrackingID,
+      SignedDate:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.SignedDate,
+      PrefLanguage @(tc:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.PrefLanguage.@tc):vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.PrefLanguage
+
+  },
+  
+RequirementInfo @(FulfillerPartyID:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@FulfillerPartyID,id:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@id,AppliesToPartyID:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@AppliesToPartyID,RequesterPartyID:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@RequesterPartyID,RequestorContactPartyID:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@RequestorContactPartyID):{
+ReqCode @(tc:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqCode.@tc):vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqCode,
+RequirementInfoUniqueID:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.RequirementInfoUniqueID,
+ReqStatus @(tc:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqStatus.@tc):vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqStatus,
+RequestedDate:vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.RequestedDate
+
+}
+      },
+
+  (vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.*Party filter ((item, index) -> item.Person.FirstName == vars.firstName or item.Person.BirthDate == vars.dateOfBirth or item.Person.LastName == vars.lastName ) map ((party, index) -> {
+Party @(id: party.@id): {
+    PartyTypeCode @(tc: party.PartyTypeCode.@tc): party.PartyTypeCode,
+    PartySysKey: party.PartySysKey,
+    FullName: party.FullName,
+    GovtID: party.GovtID,
+(if (party.Person.FirstName == vars.firstName and party.Person.BirthDate == vars.dateOfBirth and party.Person.LastName == vars.lastName){
+                Risk @(xmlns: "") :  vars.impairmentsHistory
+            }
+            else {})
+            
+}
+
+ 
+  })),
+(vars.OriginalPayload.TXLife.TXLifeRequest.OLifE.*Relation 
+filter ((item, index) -> item.RelationRoleCode.@tc ==  "32" )
+map ((item, index) -> {
+    Relation @(id: item.@id,RelatedObjectID:item.@RelatedObjectID,OriginatingObjectID:item.@OriginatingObjectID): {
+  
+  OriginatingObjectType @(tc:item.OriginatingObjectType.@tc):item.OriginatingObjectType,
+
+  RelatedObjectType @(tc:item.RelatedObjectType.@tc):item.RelatedObjectType,
+  RelationRoleCode @(tc:item.RelationRoleCode.@tc) :item.RelationRoleCode
+    }
+
+    
+}))
+
+  
+      },
+    }
+  }
+}
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="transformedPayload" doc:id="e2772559-a687-4832-8706-50459e821f6f" message="#[payload]"/>
+	</flow>
+</mule>

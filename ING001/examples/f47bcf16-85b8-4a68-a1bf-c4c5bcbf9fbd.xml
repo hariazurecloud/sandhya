@@ -1,0 +1,225 @@
+<TXLife xmln_xsd="http://www.w3.org/2001/XMLSchema" xmln_xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:FIP="http://www.sapiens.com/LPES/Base/Form" xmlns:F="http://www.sapiens.com/LPES/Base/Form" xmlns="http://ACORD.org/Standards/Life/2">
+  <TXLifeRequest>
+    <TransRefGUID>DE241958-8939-4706-A96B-51764FBE7C9B</TransRefGUID>
+    <TransType tc="103">New Business</TransType>
+    <TransExeDate>2023-04-17</TransExeDate>
+    <TransExeTime>15:20:22</TransExeTime>
+    <OLifE xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <SourceInfo>
+        <CreationDate>2023-04-17</CreationDate>
+        <CreationTime>15:20:22</CreationTime>
+        <SourceInfoComment>SalesPal</SourceInfoComment>
+        <SourceInfoName>GLOC</SourceInfoName>
+      </SourceInfo>
+      <Holding id="Holding_1">
+        <HoldingKey>TEST10001</HoldingKey>
+        <HoldingTypeCode tc="2">Policy</HoldingTypeCode>
+        <HoldingStatus tc="3">Proposed</HoldingStatus>
+        <Policy>
+          <LineOfBusiness tc="1">Life</LineOfBusiness>
+          <ProductCode>CRIEV1</ProductCode>
+          <PlanName>Life Evolution Rejuvenator</PlanName>
+          <CarrierCode>GLOC</CarrierCode>
+          <ShortName>Life Evolution Rejuvenator</ShortName>
+          <PolicyStatus tc="8">Pending</PolicyStatus>
+          <IssueNation tc="780">Trinidad &amp; Tobago</IssueNation>
+          <Jurisdiction tc="2147483647">Other</Jurisdiction>
+          <PaymentMode tc="4">Monthly</PaymentMode>
+          <PaymentMethod tc="29">Bankers Order</PaymentMethod>
+          <PaymentAmt>551</PaymentAmt>
+          <Life>
+            <InitialPremAmt>200000</InitialPremAmt>
+            <Coverage id="Coverage_1">
+              <PlanName>CRIEV1</PlanName>
+              <ShortName>Life Evolution Rejuvenator</ShortName>
+              <ProductCode>CRIEV1</ProductCode>
+              <Duration>10</Duration>
+              <CurrentAmt>200000</CurrentAmt>
+              <SubstandardRating>
+                <PermTableRating tc="4"></PermTableRating>
+                <TempFlatEndDate>2023-04-17</TempFlatEndDate>
+                <TempFlatExtraAmt>200000</TempFlatExtraAmt>
+                <OLifEExtension VendorCode="0253" />
+              </SubstandardRating>
+              <LifeParticipant PartyID="Insured_1">
+                <LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+              </LifeParticipant>
+              <LineOfBusiness tc="4">Life</LineOfBusiness>
+              <OLifEExtension VendorCode="0253">
+                <MagnumCoverageDecison>
+                  <DecisionDate>2023-04-17</DecisionDate>
+                  <Code>Decline</Code>
+                  <Description>Decline</Description>
+                  <CodeList>
+                    <CodeInfo>
+                      <Code>AVDEC</Code>
+                      <Description>Declined due to sports/pastime or avocation</Description>
+                    </CodeInfo>
+                  </CodeList>
+                </MagnumCoverageDecison>
+              </OLifEExtension>
+              <CommencementDate>2023-04-17</CommencementDate>
+            </Coverage>
+          </Life>
+          <ApplicationInfo>
+            <HOReceiptDate>2023-04-17</HOReceiptDate>
+            <SignedDate>2023-04-17</SignedDate>
+            <PrefLanguage tc="9">en-us</PrefLanguage>
+            <ApplicationType tc="2147483647">N</ApplicationType>
+            <HOAssignedAppNumber>230417190746459</HOAssignedAppNumber>
+          </ApplicationInfo>
+          <OLifEExtension VendorCode="0253">
+            <MagnumOverallDecison>
+              <Code>Decline</Code>
+              <Description>Decline</Description>
+            </MagnumOverallDecison>
+          </OLifEExtension>
+          <RequirementInfo id="Req_1" AppliesToPartyID="Insured_1">
+            <ReqCode>AGEAD</ReqCode>
+            <ReqStatus tc="1">Pending</ReqStatus>
+            <ReceivedDate>2023-04-17</ReceivedDate>
+          </RequirementInfo>
+          <RequirementInfo id="Req_2" AppliesToPartyID="Insured_1">
+            <ReqCode>POA</ReqCode>
+            <ReqStatus tc="1">Pending</ReqStatus>
+            <ReceivedDate>2023-04-17</ReceivedDate>
+          </RequirementInfo>
+          <RequirementInfo id="Req_3" AppliesToPartyID="Insured_1">
+            <ReqCode>FUTPY</ReqCode>
+            <ReqStatus tc="1">Pending</ReqStatus>
+            <ReceivedDate>2023-04-17</ReceivedDate>
+          </RequirementInfo>
+          <RequirementInfo id="Req_4" AppliesToPartyID="Insured_1">
+            <ReqCode>DECLF</ReqCode>
+            <ReqStatus tc="1">Pending</ReqStatus>
+            <ReceivedDate>2023-04-17</ReceivedDate>
+          </RequirementInfo>
+        </Policy>
+        <CurrencyTypeCode tc="780">OLI_CURRENCY_TTD</CurrencyTypeCode>
+      </Holding>
+      <Party id="Insured_1">
+        <PartyTypeCode tc="1">Person</PartyTypeCode>
+        <FullName>michael  johnston</FullName>
+        <Person>
+          <FirstName>michael</FirstName>
+          <LastName>johnston</LastName>
+          <MarStat tc="2">Single</MarStat>
+          <Gender tc="1">Male</Gender>
+          <BirthDate>1972-03-27</BirthDate>
+          <Age>51</Age>
+          <SmokerStat tc="1">Never used tobacco in any form.</SmokerStat>
+          <EstSalary>110000</EstSalary>
+          <BirthCountry tc="868">Trinidad &amp; Tobago</BirthCountry>
+          <Citizenship tc="868">Trinidad &amp; Tobago</Citizenship>
+          <PassportNo>234322</PassportNo>
+          <EstGrossAnnualOtherIncome>110000</EstGrossAnnualOtherIncome>
+          <OLifEExtension VendorCode="0253">
+            <IsPep>no</IsPep>
+            <CompanyEmployee>no</CompanyEmployee>
+            <AssuredAnnuitantType>Resident</AssuredAnnuitantType>
+            <AgeAdmittance>yes</AgeAdmittance>
+            <PassportNoExp>2023-04-30 00:00:00</PassportNoExp>
+            <SelfEmployeed>no</SelfEmployeed>
+            <PartTime>no</PartTime>
+            <Region>Trinidad &amp; Tobago</Region>
+            <EmployerAddress>park street  </EmployerAddress>
+            <YearsAtEmployer>4</YearsAtEmployer>
+          </OLifEExtension>
+        </Person>
+        <Address>
+          <AddressTypeCode tc="1">Residence</AddressTypeCode>
+          <Line1>get st</Line1>
+          <City>Freeport</City>
+          <AddressCountryTC tc="868">Trinidad &amp; Tobago</AddressCountryTC>
+        </Address>
+        <Phone>
+          <PhoneTypeCode tc="12">Mobile</PhoneTypeCode>
+          <AreaCode>111</AreaCode>
+          <DialNumber>1111111</DialNumber>
+          <PrefPhone tc="1">Yes</PrefPhone>
+        </Phone>
+        <EMailAddress>
+          <AddrLine>janeal.james@myguardiangroup.com</AddrLine>
+        </EMailAddress>
+        <Employment>
+          <EmployerName>republic bank</EmployerName>
+          <Occupation>video camera editor</Occupation>
+          <OLifEExtension>
+            <EmployerAddress>park street,Port of Spain</EmployerAddress>
+            <YearsAtEmployer>4</YearsAtEmployer>
+          </OLifEExtension>
+        </Employment>
+      </Party>
+      <Party id="Employer">
+        <PartyTypeCode tc="2">Organization</PartyTypeCode>
+        <FullName>republic bank</FullName>
+        <Address>
+          <AddressTypeCode tc="2">Organization</AddressTypeCode>
+          <Line1>park street</Line1>
+          <City>Port of Spain</City>
+          <AddressCountryTC tc="780">Trinidad &amp; Tobago</AddressCountryTC>
+        </Address>
+      </Party>
+      <Party id="Agent_1">
+        <PartySysKey>AXXXX4</PartySysKey>
+        <FullName>Shivan Maharaj</FullName>
+        <Person>
+          <FirstName>Shivan</FirstName>
+          <LastName>Maharaj</LastName>
+        </Person>
+        <Address>
+          <Line1>22 Reeza Drive</Line1>
+          <Line2>Nadira Gardens</Line2>
+          <City>Freeport</City>
+          <AddressCountryTC tc="868">Trinidad &amp; Tobago</AddressCountryTC>
+        </Address>
+      </Party>
+      <Party id="Agency_1">
+        <PartySysKey>90000</PartySysKey>
+        <FullName>Shivan Maharaj</FullName>
+        <Person>
+          <FirstName>Shivan</FirstName>
+          <LastName>Maharaj</LastName>
+        </Person>
+        <Address>
+          <Line1>22 Reeza Drive</Line1>
+          <Line2>Nadira Gardens</Line2>
+          <City>Freeport</City>
+          <AddressCountryTC tc="868">Trinidad &amp; Tobago</AddressCountryTC>
+        </Address>
+      </Party>
+      <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Insured_1" id="Insured">
+        <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+        <RelatedObjectType tc="6">Party</RelatedObjectType>
+        <RelationRoleCode tc="32">Insured</RelationRoleCode>
+      </Relation>
+      <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Insured_1" id="Owner">
+        <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+        <RelatedObjectType tc="6">Party</RelatedObjectType>
+        <RelationRoleCode tc="8">Owner</RelationRoleCode>
+      </Relation>
+      <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Insured_1" id="Payer">
+        <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+        <RelatedObjectType tc="6">Party</RelatedObjectType>
+        <RelationRoleCode tc="31">Payer</RelationRoleCode>
+      </Relation>
+      <Relation OriginatingObjectID="Insured_1" RelatedObjectID="Employer" id="RELATION_EMPLOYER_1">
+        <OriginatingObjectType tc="6">Party</OriginatingObjectType>
+        <RelatedObjectType tc="6">Party</RelatedObjectType>
+        <RelationRoleCode tc="7">Employer</RelationRoleCode>
+      </Relation>
+      <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Agent_1" id="Servicing_Agent">
+        <OriginatingObjectType tc="4"></OriginatingObjectType>
+        <RelatedObjectType tc="6"></RelatedObjectType>
+        <RelationRoleCode tc="37">90000</RelationRoleCode>
+        <InterestPercent>100</InterestPercent>
+      </Relation>
+      <Relation OriginatingObjectID="Holding_1" RelatedObjectID="Agency_1" id="RELATION_AGENT_1">
+        <OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+        <RelatedObjectType tc="6">Party</RelatedObjectType>
+        <RelationRoleCode tc="154">Servicing Agency</RelationRoleCode>
+        <InterestPercent>100</InterestPercent>
+      </Relation>
+    </OLifE>
+  </TXLifeRequest>
+</TXLife>

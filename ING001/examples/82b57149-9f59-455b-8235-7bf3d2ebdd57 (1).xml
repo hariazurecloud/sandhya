@@ -1,0 +1,367 @@
+<TXLife Version="2.37.00">
+<TXLifeRequest>
+<TransRefGUID>C03EEAF6-B3D9-4E82-9F6F-869DFB4F1332</TransRefGUID>
+<TransType tc="1125">1125</TransType>
+<OLifE>
+<SourceInfo>
+<CreationDate>2023-04-19</CreationDate>
+<CreationTime>19:13:17.057</CreationTime>
+<SourceInfoName>UWPro</SourceInfoName>
+<SourceInfoComment>Sapiens</SourceInfoComment>
+</SourceInfo>
+<Holding id="HOLDING_3965427">
+<CurrencyTypeCode tc="780">OLI_CURRENCY_TTD</CurrencyTypeCode>
+<Policy>
+<PolNumber>5003613881</PolNumber>
+<LineOfBusiness tc="2147483647">Critical Illness</LineOfBusiness>
+<CarrierCode>GLOC</CarrierCode>
+<ProductType tc="30">Critical Illness</ProductType>
+<PolicyStatus tc="24">Approved</PolicyStatus>
+<IssueNation tc="1">United States Of America</IssueNation>
+<PaymentMode tc="4">Monthly</PaymentMode>
+<PaymentAmt>570.95</PaymentAmt>
+<PaymentMethod tc="29">Banker's Order</PaymentMethod>
+<PaymentDraftDay>0</PaymentDraftDay>
+<Life>
+<Coverage id="COVERAGE_1">
+<PlanName>CRIEV1 - Life Evol Rej TT</PlanName>
+<ShortName>CRIEV1</ShortName>
+<ProductCode>CRIEV1</ProductCode>
+<LifeCovStatus tc="24">Approved</LifeCovStatus>
+<StatusReason tc="2147483647">Approve with a Rating</StatusReason>
+<IndicatorCode tc="1">Base</IndicatorCode>
+<CurrentAmt>190000</CurrentAmt>
+<InitCovAmt>190000</InitCovAmt>
+<AnnualPremAmt>570.95</AnnualPremAmt>
+<LifeParticipant PartyID="PARTY_1745309">
+<LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+<PermFlatExtraAmt>3.00</PermFlatExtraAmt>
+<TobaccoPremiumBasis tc="1">Non Smoker</TobaccoPremiumBasis>
+<PermTableRating tc="1">None</PermTableRating>
+<RatingReason>Medical Reasons</RatingReason>
+<UnderwritingClass tc="2147483647">1 - Non-Smoker</UnderwritingClass>
+<OLifEExtension VendorCode="0253">
+<AdditionalTableRating tc="1">None</AdditionalTableRating>
+</OLifEExtension>
+</LifeParticipant>
+<KeyedValue>
+<KeyName>HSA</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>RateClassQuoted</KeyName>
+<KeyValue>1 - Non-Smoker</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>COVERAGEDURATION</KeyName>
+<KeyValue>10</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>PASTCOVERAGE</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>Exchange1035</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>Reg60</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<OLifEExtension VendorCode="0253">
+<PremiumType/>
+<MagnumCoverageDecison>
+<Code>Decline</Code>
+<Description>Decline</Description>
+<DecisionDate>2023-04-17</DecisionDate>
+<DecisionLevel/>
+<CodeList>
+<CodeInfo>
+<Code>AVDEC</Code>
+<Description>Declined due to sports/pastime or avocation</Description>
+</CodeInfo>
+</CodeList>
+</MagnumCoverageDecison>
+</OLifEExtension>
+</Coverage>
+</Life>
+<ApplicationInfo>
+<TrackingID>230417190746459</TrackingID>
+<ApplicationType tc="2147483647">N</ApplicationType>
+<HOReceiptDate>2023-04-17</HOReceiptDate>
+<HOCWADate>2023-04-19</HOCWADate>
+<CWAAmt>9000.00</CWAAmt>
+<SignedDate>2023-04-17</SignedDate>
+<OLifEExtension VendorCode="0253">
+<AgentSignedDate>2023-04-17</AgentSignedDate>
+</OLifEExtension>
+</ApplicationInfo>
+<RequirementInfo xmlns="" id="Req_3962500" AppliesToPartyID="PARTY_1745309">
+<ReqCode tc="1025300001">IMP HIST</ReqCode>
+<RequirementInfoSysKey SystemCode="UWPro" VendorCode="0253">3962500</RequirementInfoSysKey>
+<RequirementInfoUniqueID>3962500</RequirementInfoUniqueID>
+<HORequirementRefID>IMP HIST</HORequirementRefID>
+<RestrictIssueCode tc="2">Yes</RestrictIssueCode>
+<ReqStatus tc="5">Satisfied</ReqStatus>
+<RequestedDate>2023-04-19</RequestedDate>
+<FulfilledDate>2023-04-19</FulfilledDate>
+<ProviderServiceCode>1025300001</ProviderServiceCode>
+<KeyedValue>
+<KeyName>CreateDate</KeyName>
+<KeyValue>2023-04-19T13:50:43Z</KeyValue>
+</KeyedValue>
+</RequirementInfo>
+<RequirementInfo xmlns="" id="Req_3965443" AppliesToPartyID="PARTY_1745309">
+<ReqCode tc="1025300016">AGEAD</ReqCode>
+<RequirementInfoSysKey SystemCode="UWPro" VendorCode="0253">3965443</RequirementInfoSysKey>
+<RequirementInfoUniqueID>3965443</RequirementInfoUniqueID>
+<HORequirementRefID>AGEAD</HORequirementRefID>
+<RestrictIssueCode tc="2">Yes</RestrictIssueCode>
+<ReqStatus tc="5">Satisfied</ReqStatus>
+<RequestedDate>2023-04-19</RequestedDate>
+<FulfilledDate>2023-04-19</FulfilledDate>
+<KeyedValue>
+<KeyName>CreateDate</KeyName>
+<KeyValue>2023-04-19T13:50:15Z</KeyValue>
+</KeyedValue>
+</RequirementInfo>
+<RequirementInfo xmlns="" id="Req_3965447" AppliesToPartyID="PARTY_1745309">
+<ReqCode tc="1025300236">POA</ReqCode>
+<RequirementInfoSysKey SystemCode="UWPro" VendorCode="0253">3965447</RequirementInfoSysKey>
+<RequirementInfoUniqueID>3965447</RequirementInfoUniqueID>
+<HORequirementRefID>POA</HORequirementRefID>
+<RestrictIssueCode tc="2">Yes</RestrictIssueCode>
+<ReqStatus tc="5">Satisfied</ReqStatus>
+<RequestedDate>2023-04-19</RequestedDate>
+<FulfilledDate>2023-04-19</FulfilledDate>
+<KeyedValue>
+<KeyName>CreateDate</KeyName>
+<KeyValue>2023-04-19T13:50:15Z</KeyValue>
+</KeyedValue>
+</RequirementInfo>
+<RequirementInfo xmlns="" id="Req_3965449" AppliesToPartyID="PARTY_1745309">
+<ReqCode tc="1025300155">FUTPY</ReqCode>
+<RequirementInfoSysKey SystemCode="UWPro" VendorCode="0253">3965449</RequirementInfoSysKey>
+<RequirementInfoUniqueID>3965449</RequirementInfoUniqueID>
+<HORequirementRefID>FUTPY</HORequirementRefID>
+<RestrictIssueCode tc="2">Yes</RestrictIssueCode>
+<ReqStatus tc="5">Satisfied</ReqStatus>
+<RequestedDate>2023-04-19</RequestedDate>
+<FulfilledDate>2023-04-19</FulfilledDate>
+<KeyedValue>
+<KeyName>CreateDate</KeyName>
+<KeyValue>2023-04-19T13:50:15Z</KeyValue>
+</KeyedValue>
+</RequirementInfo>
+<RequirementInfo xmlns="" id="Req_3965452" AppliesToPartyID="PARTY_1745309">
+<ReqCode tc="1025300109">DECLF</ReqCode>
+<RequirementInfoSysKey SystemCode="UWPro" VendorCode="0253">3965452</RequirementInfoSysKey>
+<RequirementInfoUniqueID>3965452</RequirementInfoUniqueID>
+<HORequirementRefID>DECLF</HORequirementRefID>
+<RestrictIssueCode tc="2">Yes</RestrictIssueCode>
+<ReqStatus tc="5">Satisfied</ReqStatus>
+<RequestedDate>2023-04-19</RequestedDate>
+<FulfilledDate>2023-04-19</FulfilledDate>
+<KeyedValue>
+<KeyName>CreateDate</KeyName>
+<KeyValue>2023-04-19T13:50:15Z</KeyValue>
+</KeyedValue>
+</RequirementInfo>
+<KeyedValue>
+<KeyName>LeadSource</KeyName>
+<KeyValue>GLOC</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>MarketingKeyIsValidFlag</KeyName>
+<KeyValue>0</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>AgentSplitOverride</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>TrialApplication</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>APPLICATION_TYPE_STR</KeyName>
+<KeyValue>N</KeyValue>
+</KeyedValue>
+<OLifEExtension VendorCode="0253">
+<PlanEffectiveDate>2022-05-03</PlanEffectiveDate>
+<MagnumOverallDecison>
+<Code>Decline</Code>
+<Description>Decline</Description>
+</MagnumOverallDecison>
+</OLifEExtension>
+</Policy>
+</Holding>
+<Party id="PARTY_90000">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<PartySysKey>3965433</PartySysKey>
+<FullName>Ramlal Basdeo</FullName>
+<GovtID/>
+<Person>
+<FirstName>Ramlal</FirstName>
+<LastName>Basdeo</LastName>
+<OLifEExtension VendorCode="0253"/>
+</Person>
+<Address>
+<AddressTypeCode tc="2">Business</AddressTypeCode>
+<Line1># -#1199 Sweet Slope Road</Line1>
+<Line2>Block No. 7</Line2>
+<City>Palmiste</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+</Address>
+<Client>
+<PrefLanguage tc="2147483647"/>
+</Client>
+<KeyedValue>
+<KeyName>ClientId</KeyName>
+<KeyValue>90000</KeyValue>
+</KeyedValue>
+</Party>
+<Party id="PARTY_AXXXX4">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<PartyKey>AXXXX4</PartyKey>
+<PartySysKey>3965432</PartySysKey>
+<FullName>Shivan Maharaj</FullName>
+<Person>
+<FirstName>Shivan</FirstName>
+<LastName>Maharaj</LastName>
+<OLifEExtension VendorCode="0253">
+<AgeAdmittance>No</AgeAdmittance>
+<IsPep>No</IsPep>
+</OLifEExtension>
+</Person>
+<Address>
+<AddressTypeCode tc="2">Business</AddressTypeCode>
+<Line1>22 Reeza Drive</Line1>
+<Line2>Nadira Gardens</Line2>
+<City>Freeport</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+</Address>
+<Phone>
+<PhoneTypeCode tc="19">Fax</PhoneTypeCode>
+<AreaCode/>
+<DialNumber/>
+</Phone>
+<Phone>
+<PhoneTypeCode tc="2">Business</PhoneTypeCode>
+<AreaCode/>
+<DialNumber/>
+</Phone>
+<KeyedValue>
+<KeyName>AgentRelatedToInsured</KeyName>
+<KeyValue>No</KeyValue>
+</KeyedValue>
+<KeyedValue>
+<KeyName>ClientId</KeyName>
+<KeyValue>AXXXX4</KeyValue>
+</KeyedValue>
+</Party>
+<Party id="PARTY_1745309">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<PartySysKey>3965434</PartySysKey>
+<PartySysKey>1745309</PartySysKey>
+<FullName>michael johnston</FullName>
+<Person>
+<FirstName>michael</FirstName>
+<LastName>johnston</LastName>
+<MarStat tc="2">Single</MarStat>
+<Gender tc="1">Male</Gender>
+<BirthDate>1972-03-27</BirthDate>
+<Citizenship tc="868">Trinidad and Tobago</Citizenship>
+<OccupationType tc="2147483647">video camera editor</OccupationType>
+<EstGrossAnnualOtherIncome>110000</EstGrossAnnualOtherIncome>
+<EstSalary>110000</EstSalary>
+<SmokerStat tc="1">Never</SmokerStat>
+<BirthCountry tc="868">Trinidad and Tobago</BirthCountry>
+<PassportNo>234322</PassportNo>
+<OLifEExtension VendorCode="0253">
+<PassportNoExp>2023-04-30 00:00:00.0</PassportNoExp>
+<AgeAdmittance>Yes</AgeAdmittance>
+<IsPep>No</IsPep>
+<PartTime>No</PartTime>
+<SelfEmployeed>No</SelfEmployeed>
+<AssuredAnnuitantType>Resident</AssuredAnnuitantType>
+<CompanyEmployee>no</CompanyEmployee>
+</OLifEExtension>
+</Person>
+<Employment>
+<EmployerName>republic bank</EmployerName>
+<Occupation>video camera editor</Occupation>
+<OLifEExtension VendorCode="0253">
+<EmployerAddress>park street,Port of Spain</EmployerAddress>
+<YearsAtEmployer>4</YearsAtEmployer>
+</OLifEExtension>
+</Employment>
+<Address>
+<AddressTypeCode tc="1">Residence</AddressTypeCode>
+<Line1>get st</Line1>
+<City>Freeport</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+<YearsAtAddress/>
+</Address>
+<Phone>
+<PhoneTypeCode tc="12">Mobile</PhoneTypeCode>
+<AreaCode>111</AreaCode>
+<DialNumber>1111111</DialNumber>
+</Phone>
+<EMailAddress>
+<AddrLine>janeal.james@myguardiangroup.com</AddrLine>
+</EMailAddress>
+<KeyedValue>
+<KeyName>ClientId</KeyName>
+<KeyValue>1745309</KeyValue>
+</KeyedValue>
+</Party>
+<Party id="EMPLOYER_3965425">
+<FullName>republic bank</FullName>
+<Address>
+<Line1>park street  , Port of Spain,</Line1>
+</Address>
+<KeyedValue>
+<KeyName>YEARSATEMPLOYER</KeyName>
+<KeyValue>4</KeyValue>
+</KeyedValue>
+</Party>
+<Relation id="N100EF" RelatedObjectID="PARTY_90000" OriginatingObjectID="HOLDING_3965427">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="2147483647">Agency</RelationRoleCode>
+</Relation>
+<Relation id="N10102" RelatedObjectID="PARTY_AXXXX4" OriginatingObjectID="HOLDING_3965427">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="11">Agent</RelationRoleCode>
+<InterestPercent>100</InterestPercent>
+</Relation>
+<Relation id="N10116" RelatedObjectID="PARTY_1745309" OriginatingObjectID="HOLDING_3965427">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="8">Owner</RelationRoleCode>
+<RelationDescription tc="0">Unknown</RelationDescription>
+</Relation>
+<Relation id="N1012B" RelatedObjectID="PARTY_1745309" OriginatingObjectID="HOLDING_3965427">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="31">Payer</RelationRoleCode>
+<RelationDescription tc="0">Unknown</RelationDescription>
+</Relation>
+<Relation id="N1013F" RelatedObjectID="PARTY_1745309" OriginatingObjectID="HOLDING_3965427">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="32">Insured</RelationRoleCode>
+</Relation>
+<Relation id="RELATION_EMPLOYER_3" RelatedObjectID="EMPLOYER_3965425" OriginatingObjectID="PARTY_1745309">
+<OriginatingObjectType tc="6">Party</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="7">Employer</RelationRoleCode>
+</Relation>
+</OLifE>
+</TXLifeRequest>
+</TXLife>

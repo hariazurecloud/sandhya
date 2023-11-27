@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b868422a-d7ba-4f3c-bf17-bbf4cfb95a16" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="e7665e4b-7c09-4ba5-bc25-db4fe233cf84" >
+		<http:request-connection host="ingenium-mock.centralindia.cloudapp.azure.com" />
+	</http:request-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="0d711ff2-35e8-42b7-bdcd-3c8751fb060d" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\input" />
+	</file:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="60753f54-4c55-444f-aa8a-089cc5157402" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
+	</db:config>
+	<configuration doc:name="Configuration" doc:id="f2b19f61-60fa-4d57-ac2e-05511eb41235" defaultErrorHandler-ref="global_error_handler" />
+	<flow name="projectFlow" doc:id="b6c43cc8-d9c4-4ca2-aa3d-b2e70d3e0ad9" >
+		<http:listener doc:name="Listener" doc:id="f649a045-b66c-41cc-a9cf-8f7ee796af67" config-ref="HTTP_Listener_config" path="/createApplication"/>
+		<logger level="INFO" doc:name="Flow started" doc:id="1d3a30ca-574b-4e06-9c97-40430e63a577" message="Flow started"/>
+		<ee:transform doc:name="XmlToJsonConversion" doc:id="e7b088bb-517e-43ba-9a71-684e66b0ed77" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var client= payload.TXLife.TXLifeRequest.OLifE.Party.KeyedValue.KeyValue
+
+var clientId = payload.TXLife.TXLifeRequest.OLifE.*Party.KeyedValue
+
+var input1= payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.Life.Coverage.*LifeParticipant.@PartyID
+
+var input2 = payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "32") map ((item, index) -> item.@RelatedObjectID)
+
+ 
+
+var input3 = payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "31") map ((item, index) -> item.@RelatedObjectID)
+
+ 
+
+var input4= payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "8") map ((item, index) -> item.@RelatedObjectID)
+
+ 
+
+ 
+
+var arr1 = flatten(input1 ++ input2 ++ input3 ++ input4) distinctBy ((item, index) -> item )
+// filter ((item) -> item != "Agent_1" and item != "Agency_1")
+
+ 
+
+var arr2 = payload.TXLife.TXLifeRequest.OLifE.*Party
+
+ 
+
+//var party1 = payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.Life.Coverage.*LifeParticipant.@PartyID
+
+ 
+
+fun getstatus(id)=
+if (id == "8") "Pending"
+else if(id == "24") "Approved"
+else if (id == "35") "Declined"
+else if(id == "59") "Withdrawn"
+else ""
+
+ 
+
+ 
+
+fun translateMarStat(marStatValue) =
+
+ 
+
+if (marStatValue == "1") "M"
+
+ 
+
+    else if (marStatValue == "2") "S"
+
+ 
+
+     else if (marStatValue == "3") "D"
+
+ 
+
+     else if (marStatValue == "4") "W"
+
+ 
+
+    else if (marStatValue == "5") "P"
+
+ 
+
+    else if (marStatValue == "6") "C"
+
+ 
+
+  else  "O"  
+
+ 
+
+ 
+
+fun getIDtype(IDType)=
+
+ 
+
+if (IDType == "NationalId") "National Id"
+else if( IDType == "Drivinglicense") "Drivers License"
+else if (IDType == "passport") "Passport"
+else if(IDType == "Birthcertificate") "Birth Certificate"
+else if(IDType == "BIR" ) "Govt Id"
+else " "
+
+ 
+
+fun getID(id) =
+
+ 
+
+if (payload.TXLife.TXLifeRequest.TransType.@tc == "103" and payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.Life.Coverage.LifeParticipant.@PartyID !='null') id
+
+ 
+
+else if(payload.TXLife.TXLifeRequest.TransType.@tc == "1125" and payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.Life.Coverage.LifeParticipant.@PartyID !='null') id
+else " "
+
+ 
+
+fun PolicyOptionGenerate(policyOptionValue) =
+if (policyOptionValue == "1") "12"    
+
+ 
+
+    else if (policyOptionValue == "2") "06"
+
+ 
+
+     else if (policyOptionValue == "3") "03"
+
+ 
+
+     else if (policyOptionValue == "4") "01"
+
+ 
+
+  else  ""
+
+ 
+
+ 
+
+var poldetails = payload.TXLife.TXLifeRequest.OLifE.Holding.Policy
+
+ 
+
+fun getregion(id) =
+if(id == "GLOC") "TT"
+else if (id == "GLL") "JM"
+else if(id == "BARBADOS") "BD"
+else if (id == "FATUM") "CU"
+else "?"
+
+ 
+
+fun getdeathbenefit(id)=
+if(id == "1") "D" 
+else if(id== "2") "I" else  " Empty"
+
+ 
+
+var TransID = payload.TXLife.TXLifeRequest.TransRefGUID
+
+ 
+
+var business=payload.TXLife.TXLifeRequest.OLifE.Holding.Policy
+
+ 
+
+var input5=payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "37") map ((item, index) -> item.InterestPercent)
+
+ 
+
+var input6=payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "11") map ((item, index) -> item.InterestPercent)
+
+ 
+
+var input7=payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "38") map ((item, index) -> item.InterestPercent)
+
+ 
+
+---
+
+{
+              Person: arr1 map((id, index) ->{
+                             "ID": getID(((arr2 filter $[@"id"] == id)[0].@id splitBy  "_")[1]),
+                             "FirstName": (arr2 filter $[@"id"] == id)[0].Person.FirstName,
+                             "MiddleName": (arr2 filter $[@"id"] == id)[0].Person.MiddleName,
+                             "LastName": (arr2 filter $[@"id"] == id)[0].Person.LastName,
+                             "MaidenName": (arr2 filter $[@"id"] == id)[0].Person.MaidenName,
+                             "Title": (arr2 filter $[@"id"] == id)[0].Person.Tittle,
+                             "DateOfBirth": (arr2 filter $[@"id"] == id)[0].Person.BirthDate,
+                             "BirthCountry": (arr2 filter $[@"id"] == id)[0].Person.BirthCountry,
+                             "MaritalStatus": translateMarStat((arr2 filter $[@"id"] == id)[0].Person.MarStat.@tc),
+                             "SmokerStatus": (arr2 filter $[@"id"] == id)[0].Person.SmokerStat,
+                             "Gender": (arr2 filter $[@"id"] == id)[0].Person.Gender,
+                             "CompanyName": (arr2 filter $[@"id"] == id)[0].Person.CompanyName,
+                             "ClientMDMID": ((arr2 filter $[@"id"] == id)[0].@id splitBy  "_")[1],
+                             "PrimaryOccupation": (arr2 filter $[@"id"] == id)[0].Employment.Occupation,
+                             "EmployerName": (arr2 filter $[@"id"] == id)[0].Employment.EmployerName,
+                             "EmployerAddress1": (arr2 filter $[@"id"] == id)[0].Employment.OLifEExtension.EmployerAddress,
+                             "EmployerAddress2": "",
+                             "EmployerAddress3": "",
+                             "EmployerCity": "",
+                             "EmployerState": "",
+                             "EmployerCountry": "",
+                             "TotalAnnualIncome": "",
+                             "OccupationalIncome": (arr2 filter $[@"id"] == id)[0].Person.EstSalary,
+                             "OtherIncome": "",
+                             "PrimaryEmail": (arr2 filter $[@"id"] == id)[0].EMailAddress.AddrLine,
+                             "SecondaryEmail": "",
+                             "HomeAddress1": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.Line1) else "",
+                             "HomeAddress2": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.Line2) else "",
+                             "HomeAddress3": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.Line3) else "",
+                             "HomeCity": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.City) else "",
+                             "HomeState": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.State) else " ",
+                             "HomeCountry": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.AddressCountryTC) else "",
+                             "HomeZipCode": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="1" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Residence" ) ((arr2 filter $[@"id"] == id)[0].Address.Zip) else "",
+                             "MailingAddress1": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.Line1) else "",
+                             "MailingAddress2": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.Line2) else "",
+                             "MailingAddress3": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.Line3) else "",
+                             "MailingCity": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.City) else " ",
+                             "MailingState": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.State) else " ",
+                             "MailingCountry": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.AddressCountryTC) else " ",
+                             "MailingZipCode": if ( (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode.@tc=="17" and (arr2 filter $[@"id"] == id)[0].Address.AddressTypeCode=="Mailing" ) ((arr2 filter $[@"id"] == id)[0].Address.Zip) else " ",
+                             "HomePhone": if ( (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode.@tc == "1" and (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode == "Home" ) ((arr2 filter $[@"id"] == id)[0].Phone.AreaCode ++ (arr2 filter $[@"id"] == id)[0].Phone.DialNumber) else " ",
+                             "CellPhone1": if ( (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode.@tc == "12" and (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode == "Mobile" ) ((arr2 filter $[@"id"] == id)[0].Phone.AreaCode ++ (arr2 filter $[@"id"] == id)[0].Phone.DialNumber) else " ",
+                             "CellPhone2": if ( (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode.@tc == "12" and (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode == "Mobile" ) ((arr2 filter $[@"id"] == id)[0].Phone.AreaCode ++ (arr2 filter $[@"id"] == id)[0].Phone.DialNumber) else " ",
+                             "WorkPhone": if ( (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode.@tc == "2" and (arr2 filter $[@"id"] == id)[0].Phone.PhoneTypeCode == "Business" ) ((arr2 filter $[@"id"] == id)[0].Phone.AreaCode ++ (arr2 filter $[@"id"] == id)[0].Phone.DialNumber) else " ",
+                             "ProofOfAgeIndicator": (arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.AgeAdmittance,
+                             "YearsEmployed": (arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.YearsAtEmployer,
+                             "SelfEmployed": if ( ((arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.SelfEmployeed) == "no" or ((arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.SelfEmployeed) == "No" ) false else true,
+                             "IsGHLEmployee": if ( ((arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.CompanyEmployee)== "no" or ((arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.CompanyEmployee)== "No" ) false else true,
+                             "IsPep": if ( ((arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.IsPep)=="no" or ((arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.IsPep)=="No" ) false else true,
+                             "Identification": [
+            {
+                                           "IDNumber": (arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.NationalIDNo,
+                                           "IDType": getIDtype("NationalId"),
+                                           "IDExpDate": (arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.NationalIDNoExp,
+                                           "IssueCountry": ""
+                             },
+
+
+
+        
+{
+                                           "IDNumber": (arr2 filter $[@"id"] == id)[0].Person.DriversLicenseNum,
+                                           "IDType": getIDtype("Drivinglicense"),
+                                           "IDExpDate": (arr2 filter $[@"id"] == id)[0].Person.DriversLicenseExpDate,
+                                           "IssueCountry": ""
+                             },
+
+
+
+   {
+                                           "IDNumber": (arr2 filter $[@"id"] == id)[0].Person.PassportNo,
+                                           "IDType": getIDtype("passport"),
+                                           "IDExpDate": (arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.PassportNoExp,
+                                           "IssueCountry": ""
+                             },
+
+
+
+    {
+                                           "IDNumber": (arr2 filter $[@"id"] == id)[0].Person.OLifEExtension.Birthcertificate,
+                                           "IDType": getIDtype("Birthcertificate"),
+                                           "IssueCountry": ""
+                             },
+
+
+
+       {
+                                           "IDNumber": (arr2 filter $[@"id"] == id)[0].GovtID,
+                                           "IDType": getIDtype("BIR"),
+                                           "IssueCountry": ""
+                             }]
+    }),
+    "Application": {
+         "ApplicationID": TransID,
+         "UniqueApplicationID": "",
+         "CreateDate" : "",
+         "SubmitDate" : "",
+         "RegionCode": poldetails.Life.CarrierCode ,
+         "New Business":[{
+                                                                    
+             "type":payload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoComment,
+
+             "value":getregion(business.CarrierCode),
+             "ValueItem": "",
+            "Referral": ""
+         }
+         ],
+         "ApplicationAgent": [
+      {
+        "AgentCode": "",
+        "Split":"",
+        "IsPrimary": if(payload.TXLife.TXLifeRequest.OLifE.*Relation.RelationRoleCode.@tc contains "37") true
+       else if(payload.TXLife.TXLifeRequest.OLifE.*Relation.RelationRoleCode.@tc contains "11" ) false
+       else if (payload.TXLife.TXLifeRequest.OLifE.*Relation.RelationRoleCode.@tc contains "38") false 
+      else " "
+      }
+    ],
+            
+         "BankAccountInfo":{
+          "AccountNumber":poldetails.AccountNumber,
+          "AccountType":poldetails.BankAcctType ,
+          "Country": "",
+          "DrawDay":poldetails.PaymentDraftDay,
+          "BankName":poldetails.BankName,
+          "BranchName":poldetails.OLifEExtension.Branch,
+           "BranchNumber": "",
+          "TransitNumber": "",
+          "RoutingNumber": "",
+          "DrawDay": "",
+          },
+         "UserNTID": null,
+        "CreateDate": null,
+        "SubmitDate": null,
+        "StatusID": null,
+        "SumAssured12MonthAgent": null,
+        "PayorCompanyName": null,
+        "OwnerTypeCode": null,
+        "OwnerCompanyName": null,
+        "ApplicantTypeCode": null,
+        "RaterOccupation": null,
+        "RaterAge": null,
+        "RaterIncome": null,
+        "RaterPremium": null,
+        "RaterPremiumFrequency": null,
+        "RaterStabilityEmployment": null,
+        "RaterInitialSettlement": null,
+        "RaterPreviousInsurance": null,
+        "TotalRater": null,
+        "ApplicationDetailValue": null
+},
+
+
+  "Policy":[
+{
+ "PolicyID": poldetails.PolNumber,
+ "InsuredID":"",
+"OwnerID":"",
+"PayorID":"",
+"PolicyType": "",
+"OwnerRelationshipName": "",
+"ProductCode":if(poldetails.Life.Coverage.IndicatorCode.@tc == "1" and poldetails.Life.Coverage.IndicatorCode == "Base" )(poldetails.Life.Coverage.ProductCode) else " ",
+"BeneficiaryIsEstate":if ((arr2.Person.OLifEExtension.PolicyOwnerEstate joinBy  " ") == "no") false else true,
+"BeneficiaryIsMPA":if((arr2.Person.OLifEExtension.MPA joinBy  " ") == "no") false else true,   
+"BeneficiaryIsIrrevocable":if((poldetails.Life.Coverage.LifeParticipant.IrrevokableInd) =="no" ) false else true,
+"ApplicationSignedDate":poldetails.ApplicationInfo.SignedDate,
+"EffectiveDate":poldetails.OLifEExtension.PlanEffectiveDate,
+"ProductCode": "",
+"DeathBenefitOption":getdeathbenefit(poldetails.Life.Coverage.DeathBenefitOptType),
+ "SecondaryInsured": [
+        {
+          "PersonID": "",
+          "RelationshipName": ""
+        }
+      ],
+ "BeneficiaryInfo": [
+        {
+          "PersonID": "",
+         "Split": "",
+          "RelationshipName": "",
+          "HasTrustee": false
+        }
+      ],
+
+ 
+
+"PolicyOptions":  [
+{
+
+   "OptionName" : "Mode of Payment",
+   "PolicyOptionValue" :PolicyOptionGenerate(poldetails.PaymentMode.@tc)
+        },
+{
+    "OptionName": "Sum Assured",
+    "PolicyOptionValue": if (poldetails.Life.Coverage.IndicatorCode.@tc == "1" and poldetails.Life.Coverage.IndicatorCode == "Base" )(poldetails.Life.Coverage.InitCovAmt) else ""
+	
+},
+{
+	"OptionName ": "Base Premium Amount",
+	"PolicyOptionValue" : poldetails.PaymentAmt
+},
+{
+		"OptionName ": "Listbill",
+		"PolicyOptionValue" :poldetails.OLifEExtension.ListBillEmployeeID
+
+ 
+
+}
+],
+
+ 
+"Coverages":[{
+       "ProductCode":poldetails.Life.Coverage.ProductCode,
+         "ProductName":poldetails.Life.Coverage.PlanName,
+         "Premium":poldetails.Life.Coverage.AnnualPremAmt,
+
+         "FaceAmount":poldetails.Life.Coverage.InitCovAmt,
+         "InsuredID":"",
+         "Decision": null,
+         "EffectiveDate":poldetails..Life.Coverage.EffDate,
+		"Rating1":poldetails.Life.Coverage.LifeParticipant.PermTableRating,       
+		"RatingReason1": "",                                                             
+		"Rating2":poldetails.Life.Coverage.LifeParticipant.RatingReason,
+		"RatingReason2": "",
+		"PermFlatExtraAmt":poldetails.Life.Coverage.LifeParticipant.PermFlatExtraAmt,
+		"TempFlatExtraAmt":poldetails.Life.Coverage.LifeParticipant.TempFlatExtraAmt,
+		"TempFlatExtraDuration":poldetails.Life.Coverage.LifeParticipant.TempFlatExtraDuration,
+"Funds": [
+            {
+              "Code": poldetails.Life.Coverage.OLifEExtension.FundAllocation.FundCode,
+              "Percent": poldetails.Life.Coverage.OLifEExtension.FundAllocation.PremiumAllocationPct
+            }
+              ],
+
+"Disposition": {
+            "Value": getstatus  (poldetails.Life.Coverage.LifeCovStatus.@tc),
+
+            "Reason": poldetails.Life.Coverage.OLifEExtension.FundAllocation.PremiumAllocationPct
+          }
+			}],
+         "Disposition": {
+        "Value": "",
+        "Reason": ""
+      }
+
+}
+
+]
+
+ 
+
+}
+
+    
+    ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value='#[%dw 2.0&#10;    output application/java&#10;    ---&#10;   payload.Application.ApplicationID ++ ".json"]' doc:name="appID" doc:id="13fdf973-ff5f-4ed1-8e70-329d3200c63e" variableName="appID"/>
+		<logger level="INFO" doc:name="Json-Transformeddata" doc:id="31680d71-3499-4b2a-8a15-e55432ebaecc" message="#[payload]"/>
+		<ee:transform doc:name="Payload" doc:id="2d5e7f59-eadf-4906-85c0-d5afede4b51f" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="JSONPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<set-variable value="#[%dw 2.0&#10;    output application/java&#10;    ---&#10;   payload.Application.ApplicationID]" doc:name="TransRefGUID" doc:id="0c306992-a446-47c5-ac1b-43589ec9a1b2" variableName="TransRefGUID"/>
+		<file:write doc:name="WriteToFile-TransformedData" doc:id="f9d5d111-9765-4db8-a3ce-3d3da6c982c5" config-ref="File_Config" path="#[vars.appID]" createParentDirectories="false" />
+		<db:update doc:name="UpdateMessage" doc:id="b556d358-f104-428f-8409-8e1b201f1bfe" config-ref="Database_Config">
+			<db:sql><![CDATA[update UWProToGG.Transcations  set  LastExecuted= :LastExecuted, WasProcessed= :WasProcessed, Message= :Message,TransRefGUID= :TransRefGUID,RequestStatus= :RequestStatus where TransRefGUID= :TransRefGUID
+]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+    LastExecuted: now(),
+    WasProcessed: true, 	
+    Message: "awaitingForResponse", 
+    TransRefGUID: vars.TransRefGUID,
+RequestStatus: "awaitingForResponse"
+    }]]]></db:input-parameters>
+		</db:update>
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="abcf66d1-d402-438f-a674-4dd6f6fda0f8" >
+			<http:request method="POST" doc:name="RequestToIngeniumAPI" doc:id="aa104267-4ebc-45e7-af6c-ba6efc84ce16" config-ref="HTTP_Request_configuration" responseTimeout="10000" path="/policy">
+			<http:body><![CDATA[#[vars.JSONPayload]]]></http:body>
+		</http:request>
+		</until-successful>
+		<logger level="INFO" doc:name="payload" doc:id="278b680f-724f-4601-8758-b91f0161bc70" message="#[payload]"/>
+	</flow>
+</mule>

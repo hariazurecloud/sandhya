@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="74e483d6-a68a-42e5-8077-7f6dae9a5ea5" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="1cbdaeff-3331-426d-aca6-4dc7594e7b57" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="policyDetails" />
+	</db:config>
+	<flow name="db-sys-apiFlow" doc:id="045cdf6f-db6f-4354-9d17-37b3df1126d4" >
+		<http:listener doc:name="Listener" doc:id="3dd52b5a-719b-4101-9616-3870598e20a4" config-ref="HTTP_Listener_config" path="/database"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ee144a44-e74c-43e5-acd0-564ad14e00a4" message="#[payload]"/>
+		<try doc:name="Try" doc:id="05a8b4e9-80a1-4ce0-9151-41484e2f32fa" >
+			<db:insert doc:name="Insert" doc:id="c0aa5ffb-8566-4a87-9d65-f0e60334cc12" config-ref="Database_Config">
+				<db:sql ><![CDATA[#[payload.query] ]]></db:sql>
+			</db:insert>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="590c8f82-0922-42a5-9f3c-f615e5f364c1" type="ANY">
+					<logger level="INFO" doc:name="Logger" doc:id="fc2f8889-2b73-49b2-b62b-1a4069294e24" message="#[error.detailedDescription]"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="5fc44f85-6244-4edd-b0b3-6f978bc3ebc3" message="insertion flow ended"/>
+	</flow>
+</mule>

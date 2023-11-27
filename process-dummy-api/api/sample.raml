@@ -1,0 +1,23 @@
+#%RAML 1.0
+title: sample
+description: To retrieve data from server
+
+/test:
+ post:
+  description: To retrieve data from server
+  body:
+    application/json:
+      example: !include example.raml
+  responses:
+    200:
+      body:
+        application/json:
+          example:
+            {
+              message: "Data is received"
+            }
+        
+        
+  
+      
+      

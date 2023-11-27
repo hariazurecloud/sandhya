@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EnterpriseMessage
+	xmlns="http://schemas.umusic.com/enterprise/services/2014/05">
+	<EnterpriseHeader>
+		<MessageId>f78503d7-fd23-40a8-b529-9f7c658eaee1</MessageId>
+		<ThreadId>09a85850-9746-11e4-a3ff-b82a72c81b7e</ThreadId>
+		<CreatedUtc>2015-01-08T20:23:20.231+05:30</CreatedUtc>
+		<Source>FICO-OUTBOUND</Source>
+		<Resource>
+			<ResourceName>Z_FI_GEN_CREDIT_LIMIT0101-null-null</ResourceName>
+			<ResourceId>tmp/rafiq/sap2es/fico/1230000002762584</ResourceId>
+		</Resource>
+	</EnterpriseHeader>
+</EnterpriseMessage> 

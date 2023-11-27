@@ -1,0 +1,17 @@
+http:
+   host: "localhost"   
+   port: "8081"
+   path: "/api/"
+   
+   
+ingenium_Req:
+  host: "localhost"
+  port: "8082"
+  path: "createApplication"
+  
+oft/imp_Req:
+  host: "localhost"
+  port: "8085"
+  path: "/GetOftData"
+
+  

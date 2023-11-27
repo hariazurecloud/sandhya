@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="f10abf7b-0713-4bd0-b642-4a214ab91f26" />
+	
+	<http:listener-config name="HTTP_request-listner" doc:name="HTTP Listener config" doc:id="c461cf48-c522-4fde-b9a0-c359cb13799b" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	
+<flow name="requestorFlow1" doc:id="a54e720f-1917-4153-99b6-5abe65218d6d" >
+		<http:listener doc:name="Listener" doc:id="0cad77fa-1aca-4ec3-863c-2b18fa4d8629" config-ref="HTTP_request-listner" path="/request"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9a1c1461-1598-4b35-8c87-8b6624dbb96a" message="Flow started"/>
+		<ee:transform doc:name="Transform Message" doc:id="88997fbe-276a-46f9-b9b1-20dfe7bc89c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+	
+---
+
+payload
+  
+  
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="50496d79-a3c5-40f7-ba3f-895cd2a0fbb1" objectStore="Object_store"/>
+		<logger level="INFO" doc:name="Logger" doc:id="dc1c75ee-4b05-404c-ba6a-dd099c5d64d9" message='#[payload]'/>
+		<choice doc:name="Choice" doc:id="4f906f17-eba3-492a-8f6a-2cb1e69f10c7" >
+			<when expression='#[payload != null]'>
+				<ee:transform doc:name="Transform Message" doc:id="5d56e30b-5acc-4a31-a209-4f9a4c8fbd9a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result":"welcome to mule course"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="de5f109a-5233-46d8-8b15-b25fb8027eab" message="#[payload.result]"/>
+			
+</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="118d3c35-0cbe-4c1b-a1e9-f736befba10d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result":"no course is selected"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="4aaf92d6-abdd-4886-93db-84e8bd442a31" message="#[payload.result]"/>
+			</otherwise>
+		</choice>
+	
+</flow>
+	
+	</mule>

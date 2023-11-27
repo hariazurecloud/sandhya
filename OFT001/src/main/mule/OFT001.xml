@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="07786f6f-f0c4-401c-a826-aa8d52fee5af" >
+		<http:listener-connection host="0.0.0.0" port="8085" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="fb945424-42cd-4a4b-9a5d-36017590dddb" >
+		<http:request-connection protocol="HTTPS" >
+			<http:authentication >
+				<http:basic-authentication username="mwusr_api_tst" password="Today123" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="0139b645-8248-4b8a-89a1-e193089305e6" >
+		<file:connection workingDir="C:\Users\sandhya.a\OneDrive - Technovert\Documents\OFT-RESPONSE-OUTPUT" />
+	</file:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="d600ff2b-7deb-4b11-9e29-6cf4b5a69fb0" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
+	</db:config>
+	<configuration doc:name="Configuration" doc:id="7ed4fd7d-a5af-4ffa-9151-a3a704d214a5" defaultErrorHandler-ref="global_error_handler" />
+	<flow name="oft-apiFlow" doc:id="3834b46a-247e-47bd-afae-11184091ab9d" >
+		<http:listener doc:name="Listener" doc:id="87e14d0f-9797-480e-a112-2409beacac54" config-ref="HTTP_Listener_config" path="/GetOftData"/>
+		<set-variable value="#[payload]" doc:name="originalPayload" doc:id="42570913-f82a-4422-af47-973e45ce6aa4" variableName="originalPayload" mimeType="application/xml"/>
+		<set-variable value='#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.TXLife.TXLifeRequest.TransRefGUID  ++ ".xml"]' doc:name="appID" doc:id="7ca90c8c-6ba9-4ec4-8707-7b3ebb1f6515" variableName="appID" />
+		<choice doc:name="Choice" doc:id="5efafa8f-90f4-4981-9fd5-161eca41f468" >
+			<when expression='#[attributes.queryParams.Request == "OFT"]'>
+				<ee:transform doc:name="retrive-MasterID" doc:id="c562347e-e4de-43c9-afbe-eff90848e343">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var input2=payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "32") map ((item, index) -> item.@RelatedObjectID)
+
+var input3= payload.TXLife.TXLifeRequest.OLifE.*Party
+---
+input2 map ((id, index) ->((input3 filter $[@"id"] == id)[0].KeyedValue.KeyValue) )joinBy ""
+
+  ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" doc:name="masterID" doc:id="88240970-6e7a-4688-b4de-8c424c39b732" variableName="masterID" />
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="02be9101-769f-45c9-ba80-ca9cd632db16" >
+					<http:request method="GET" doc:name="Request" doc:id="7f1c545e-480d-4a4e-8498-47cd9d45a3e2" config-ref="HTTP_Request_configuration" url="https://gssl-tst.outsystemsenterprise.com/UWProAPI/rest/GetOFTData/GetOFTData" responseTimeout="10000">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	MasterID : vars.masterID
+}]]]></http:query-params>
+		</http:request>
+				</until-successful>
+				<logger level="INFO" doc:name="responseFromOFT" doc:id="bdb655db-8c48-4c97-834e-b9e0da8e5b3d" message="#[payload]" />
+				<set-variable value="#[payload]" doc:name="OFTResponse" doc:id="2a7063fd-f013-40fb-88de-4643c3750155" variableName="OFTResponse"/>
+				<choice doc:name="Choice" doc:id="53167cfa-4dec-422e-9f3e-1a379db6984a">
+					<when expression='#[payload.Result.Success == true]'>
+						<ee:transform doc:name="Transform Message" doc:id="e7abd1ec-90f7-4298-9c2a-a8aa5ce60383" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+
+fun TcCode (tCcodes) = tCcodes match {
+    case tCcodes if ( vars.OFTResponse.Result.Success == true) -> "1"
+    case tCcodes if (vars.OFTResponse.Result.Success == false) -> "5"
+    else -> null
+}
+
+fun resultInfo (ResultInfoDesc) = ResultInfoDesc match  {
+    case ResultInfoDesc if (vars.OFTResponse.Result.Success == true) -> "DATA IS AVAIALABLE"
+    case ResultInfoDesc if (vars.OFTResponse.Result.Success == false) -> "Error Message"
+    else -> null
+}
+
+fun result (tCcodes) = tCcodes match {
+    case tCcodes if (vars.OFTResponse.Result.Success == true) -> "SUCCESS"
+    case tCcodes if (vars.OFTResponse.Result.Success == false) -> "FAILURE"
+    else -> null
+}
+
+---
+
+{
+  TXLife @(xmlns: "Version= 2.12.00"):{
+    TXLifeResponse: {
+TransRefGUID :payload.TXLife.TXLifeRequest.TransRefGUID,
+TransType : payload.TXLife.TXLifeRequest.TransType.@tc,
+TransExeDate : payload.TXLife.UserAuthRequest.UserDate,
+TransExeTime : payload.TXLife.UserAuthRequest.UserTime,
+TransResult :{
+    ResultCode  @(tc: TcCode(vars.OFTResponse.Result.Success)): result(vars.OFTResponse.Result.Success),
+    ResultInfo : resultInfo(vars.OFTResponse.Result.Success)
+
+    
+
+
+    
+}
+
+
+    }
+  }}
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="086fe23c-e780-4c34-b42b-e87d429c9004" message="#[payload]"/>
+						<ee:transform doc:name="createRiskNode" doc:id="4c2e2b25-470c-4784-9392-8ae8722cbbef">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+
+output application/xml
+
+var input1="3913753"
+
+fun ValueCode(value) =
+
+    if (value == "46") "In Range"
+
+    else if (value == "36") "Non Reactive"
+
+    else if (value == "2") "Negative"
+
+    else " "
+
+   
+
+---
+
+  Risk @(xmlns: ""): {
+
+      MedicalExam:{
+
+          Examdate:payload.Dataset[0].ExamDate,
+
+          FirstDiastolicBPReading: 0,
+
+            FirstSystolicBPReading: 0,
+
+            FirstPulseReading: 0,
+
+            LabSlipTicketNum: 0
+
+            },
+
+           LabTesting @(id: payload.Dataset[0].OftNum): {
+
+            TestUpdateDate: payload.Dataset[0].TestDate,
+
+            TestDate: payload.Dataset[0].TestDate,
+           
+          (payload.Dataset map ((item, index) ->{
+            LabTestResult @(RequirementInfoID:"Req_" ++ input1,id: item.OftLabTestResultId):{
+
+              TestCode @(tc: item.TestCode):item.TestName,
+
+            ProviderTestCode:item.ProviderTestCode,
+           QualitativeResult @(id: item.OftLabTestResultId):{
+
+              ValueCode: (item.Result)
+
+           },
+
+           ReferenceRange:{
+
+          MaxValue: (item.MaxValue)
+
+           }
+           },
+        }))
+        },
+  }
+
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+						<set-variable value="#[payload]" doc:name="riskNode" doc:id="cbac9dee-57fc-411b-96aa-b6f98afeabc9" variableName="riskNode" />
+						<logger level="INFO" doc:name="riskNodePayload" doc:id="4308bb94-5d2c-4a5b-97b4-d8e7cc0c3eb5" message="#[payload]" />
+						<ee:transform doc:name="appendRiskNode" doc:id="f57a298f-d456-4ef0-a50a-ef662ac10b3d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+{
+  TXLife @(xmlns: "http://ACORD.org/Standards/Life/2", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation": "http://ACORD.org/Standards/Life/2 TXLife2.21.90.xsd"):{
+    UserAuthRequest: {
+      UserLoginName: vars.originalPayload.TXLife.UserAuthRequest.UserLoginName,
+      UserPswd: {
+          CryptType: vars.originalPayload.TXLife.UserAuthRequest.UserPswd.CryptType,
+          Pswd : ""
+      },
+      UserDate: vars.originalPayload.TXLife.UserAuthRequest.UserDate,
+      UserTime :vars.originalPayload.TXLife.UserAuthRequest.UserTime,
+      VendorApp: {
+    VendorName @(VendorCode: ""):vars.originalPayload.TXLife.UserAuthRequest.VendorApp.VendorName,
+    AppName: vars.originalPayload.TXLife.UserAuthRequest.VendorApp.AppName
+  }
+ 
+    },
+    TXLifeRequest: {
+      TransRefGUID: vars.originalPayload.TXLife.TXLifeRequest.TransRefGUID,
+      TransType @(xmlns: "", tc: "1122"): "General Requirement Status/Result Transmittal",
+      TransExeDate : vars.originalPayload.TXLife.TXLifeRequest.TransExeDate,
+      TransExeTime : vars.originalPayload.TXLife.TXLifeRequest.TransExeTime,
+      TransMode @(tc :"2"): vars.originalPayload.TXLife.TXLifeRequest.TransMode,
+      NoResponseOK @(tc :"0"): vars.originalPayload.TXLife.TXLifeRequest.NoResponseOK,
+      TestIndicator @(tc : "1"): vars.originalPayload.TXLife.TXLifeRequest.TestIndicator,
+      OLifE : {
+      SourceInfo: {
+         CreationDate: vars.originalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationDate,
+         CreationTime:vars.originalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.CreationTime,
+         SourceInfoName: vars.originalPayload.TXLife.TXLifeRequest.OLifE.SourceInfo.SourceInfoName
+      },
+      Holding @(id : vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.@id) : {
+        Policy @(CarrierPartyID : vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.@CarrierPartyID) :{
+        PolNumber : vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PolNumber,
+        LineOfBusiness @(tc :vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.LineOfBusiness.@tc): payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.LineOfBusiness,
+        CarrierCode: vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.CarrierCode,
+            PaymentMode @(tc: vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PaymentMode.@tc): payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PaymentMode,
+            PaymentAmt: vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.PaymentAmt,
+ 
+        },
+         Life: {
+    (vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.Life.*Coverage map (coverage) -> {
+      Coverage @(id: coverage.@id): {
+        PlanName: coverage.PlanName,
+        ProductCode: coverage.ProductCode,
+        LifeCovStatus @(tc: coverage.LifeCovStatus.@tc): coverage.LifeCovStatus,
+        IndicatorCode @(tc: coverage.IndicatorCode.@tc): coverage.IndicatorCode,
+        CurrentAmt: coverage.CurrentAmt,
+        InitCovAmt: coverage.InitCovAmt,
+        LifeParticipant @(PartyID: coverage.LifeParticipant.PartyID): {
+          LifeParticipantRoleCode @(tc: coverage.LifeParticipant.LifeParticipantRoleCode.@tc): coverage.LifeParticipant.LifeParticipantRoleCode,
+          TobaccoPremiumBasis @(tc: coverage.LifeParticipant.TobaccoPremiumBasis.@tc): coverage.LifeParticipant.TobaccoPremiumBasis,
+          UnderwritingClass @(tc: coverage.LifeParticipant.UnderwritingClass.@tc): coverage.LifeParticipant.UnderwritingClass
+        }
+      }
+    })
+  } ,
+  ApplicationInfo:{
+      TrackingID:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.TrackingID,
+      SignedDate:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.SignedDate,
+      PrefLanguage @(tc:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.PrefLanguage.@tc):payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.ApplicationInfo.PrefLanguage
+ 
+  },
+  
+RequirementInfo @(FulfillerPartyID:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@FulfillerPartyID,id:payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@id,AppliesToPartyID:payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@AppliesToPartyID,RequesterPartyID:payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@RequesterPartyID,RequestorContactPartyID:payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.@RequestorContactPartyID):{
+ReqCode @(tc:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqCode.@tc):payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqCode,
+RequirementInfoUniqueID:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.RequirementInfoUniqueID,
+ReqStatus @(tc:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqStatus.@tc):payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.ReqStatus,
+RequestedDate:vars.originalPayload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.RequestedDate
+ 
+}
+      },
+ 
+  (vars.originalPayload.TXLife.TXLifeRequest.OLifE.*Party filter ((item, index) -> item.@id == vars.masterID) map ((party, index) -> {
+Party @(id: party.@id): {
+    PartyTypeCode @(tc: party.PartyTypeCode.@tc): party.PartyTypeCode,
+    PartySysKey: party.PartySysKey,
+    FullName: party.FullName,
+    GovtID: party.GovtID,
+    Person: {
+    FirstName : party.Person.FirstName,
+    LastName : party.Person.LastName,
+    MarStat @(tc: party.Person.MarStat.@tc) : party.Person.MarStat,
+    Gender @(tc: party.Person.Gender.@tc) : party.Person.Gender,
+    BirthDate : party.Person.BirthDate,
+    Citizenship @(tc: party.Person.Citizenship.@tc) : party.Person.Citizenship,
+    EstGrossAnnualOtherIncome : party.Person.EstGrossAnnualOtherIncome,
+    EstSalary : party.Person.EstSalary,
+    SmokerStat @(tc: party.Person.SmokerStat.@tc) : party.Person.SmokerStat,
+    DriversLicenseNum: party.Person.DriversLicenseNum,
+    BirthCountry @(tc: party.Person.BirthCountry.@tc) : party.Person.BirthCountry,
+    OccupationType @(tc: party.Person.OccupationType.@tc) : party.Person.OccupationType,
+
+    },
+    EMailAddress :
+        AddrLine : party.EMailAddress.AddrLine,
+
+        Address : {
+        AddressTypeCode @(tc: party.Address.AddressTypeCode.@tc) : party.Address.AddressTypeCode,
+
+    Line1 : party.Address.Line1,
+    line2 : party.Address.Line2,
+    City : party.Address.City,
+    AddressCountry : party.Address.AddressCountry,
+    AddressCountryTC @(tc: party.Address.AddressCountryTC.@tc) : party.Address.AddressCountryTC}
+,
+(party.*Phone map {
+    Phone : {
+      PhoneTypeCode  @(tc :$.PhoneTypeCode.@tc) : $.PhoneTypeCode,
+      AreaCode : $.AreaCode,
+      DialNumber : $.DialNumber,
+
+    }}),
+    KeyedValue: {
+    KeyName : party.KeyedValue.KeyName,
+    KeyValue: party.KeyedValue.KeyValue,
+    },
+(if (party.@id == vars.masterID){
+                Risk @(xmlns: "") : vars.riskNode
+            }
+            else {})
+    
+            
+}
+ 
+ 
+  })),
+  (payload.TXLife.TXLifeRequest.OLifE.*Relation
+filter ((item, index) -> item.@RelatedObjectID == vars.masterID and item.RelationRoleCode.@tc ==  "32" )
+map ((item, index) -> {
+    Relation @(id: item.@id,RelatedObjectID:item.@RelatedObjectID,OriginatingObjectID:item.@OriginatingObjectID): {
+  
+  OriginatingObjectType @(tc:item.OriginatingObjectType.@tc):item.OriginatingObjectType,
+ 
+  RelatedObjectType @(tc:item.RelatedObjectType.@tc):item.RelatedObjectType,
+  RelationRoleCode @(tc:item.RelationRoleCode.@tc) :item.RelationRoleCode
+    }
+ 
+    
+}))
+  
+      },
+    }
+  }
+}
+ ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+						<file:write doc:name="WritetoFile" doc:id="708b3fb8-fb64-48af-bbbf-e23c2a034cf1" path="#[vars.appID]" config-ref="File_Config" />
+						<logger level="INFO" doc:name="payload" doc:id="bda17097-ea47-4b38-9b92-9cdb20213467" message="#[payload]" />
+					</when>
+					<otherwise >
+						<ee:transform doc:name="Transform Message" doc:id="b77f280e-f32d-4510-9fca-293bee4d0cc5" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+var Response ={
+  "Result": {
+    "Success": true
+  }
+}
+fun TcCode (tCcodes) = tCcodes match {
+    case tCcodes if (Response.Result.Success == true) -> "1"
+    case tCcodes if (Response.Result.Success == false) -> "5"
+    else -> null
+}
+
+fun resultInfo (ResultInfoDesc) = ResultInfoDesc match  {
+    case ResultInfoDesc if (Response.Result.Success == true) -> "DATA IS AVAIALABLE"
+    case ResultInfoDesc if (Response.Result.Success == false) -> "Error Message"
+    else -> null
+}
+
+fun result (tCcodes) = tCcodes match {
+    case tCcodes if (Response.Result.Success == true) -> "SUCCESS"
+    case tCcodes if (Response.Result.Success == false) -> "FAILURE"
+    else -> null
+}
+
+---
+
+{
+  TXLife @(xmlns: "Version= 2.12.00"):{
+    TXLifeResponse: {
+TransRefGUID :payload.TXLife.TXLifeRequest.TransRefGUID,
+TransType : payload.TXLife.TXLifeRequest.TransType.@tc,
+TransExeDate : payload.TXLife.UserAuthRequest.UserDate,
+TransExeTime : payload.TXLife.UserAuthRequest.UserTime,
+TransResult :{
+    ResultCode  @(tc: TcCode(Response)): result(Response),
+    ResultInfo : resultInfo(Response)
+
+    
+
+
+    
+}
+
+
+    }
+  }}
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</otherwise>
+				</choice>
+			</when>
+			<when expression='#[attributes.queryParams.Request == "IMP"]'>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="17fe4f6a-5fd3-4ee5-b7af-5976f060bb0f" >
+					<http:request method="POST" doc:name="Request" doc:id="fdef4cfa-a4df-4c7f-a2e6-76c59ea955fd" url="http://localhost:8089/imp001" responseTimeout="10000" />
+				</until-successful>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="request not avialable " doc:id="f121b092-3ea1-45ce-affd-238b7bbd7712" message="request not avialable "/>
+				<raise-error doc:name="Raise error" doc:id="14a89520-6f85-4cd1-9085-7483a53ddf2f" type="ORDER:INVALID_DATA" description="Inavlid data"/>
+			</otherwise>
+		</choice>
+		<set-variable value='#[%dw 2.0&#10;output application/json&#10;&#10;fun isRiskAvailable(payload) =&#10;  payload..*Risk != null&#10;  ---&#10;  "Message": if (isRiskAvailable(payload))&#10;  ("awaitingForResponse") else "No Response Achieved"]' doc:name="Set Variable" doc:id="751bf732-b383-4e62-a055-e8a93713dca0" variableName="Message"/>
+		<db:update doc:name="Update" doc:id="f1667f50-fa26-476c-9b14-d07b17d367cb" config-ref="Database_Config">
+			<db:sql><![CDATA[update UWProToGG.Transcations  set  LastExecuted= :LastExecuted, WasProcessed= :WasProcessed, Message= :Message,TransRefGUID= :TransRefGUID,RequestStatus= :RequestStatus where TransRefGUID= :TransRefGUID
+]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+    LastExecuted: now(),
+    WasProcessed: true, 	
+    Message: vars.Message, 
+    TransRefGUID: payload.TXLife.TXLifeRequest.TransRefGUID,
+RequestStatus: vars.Message
+    }]]]></db:input-parameters>
+		</db:update>
+	</flow>
+</mule>

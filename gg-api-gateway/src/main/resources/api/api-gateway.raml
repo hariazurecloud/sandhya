@@ -1,0 +1,30 @@
+#%RAML 1.0
+title: API-GATEWAY
+
+mediaType: 
+- application/xml
+- application/json
+
+/newPolicyCreation:
+  post:
+    queryParameters:
+      transType:
+        description: transcation type of the file
+        type: string
+        required: true
+    body:
+      application/xml:
+        description: policy details
+        example: 
+          
+        
+    responses:
+      200:
+        body:
+          application/json:
+            example: "policy is sucessfully posted"
+              
+            
+
+ 
+             

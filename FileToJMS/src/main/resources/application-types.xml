@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="xml" format="xml">
+      <types:example format="xml" element="{http://ACORD.org/Standards/Life/2}TXLife" location="examples/1B0A0518-E887-4CFA-BECE-658525BFC241.xml"/>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#cc0a57ab-d254-49e2-b806-6ceb120ebc4c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="xml"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

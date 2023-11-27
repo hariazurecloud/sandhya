@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="acb695ca-921c-48d3-bc31-000fab855741" >
+		<http:request-connection protocol="HTTPS" />
+	</http:request-config>
+	<flow name="newpolicy-system-apiFlow" doc:id="b1181404-14bb-4dce-8b44-c2739a0a7672" >
+		<scheduler doc:name="Scheduler" doc:id="e3e28131-696b-4e24-9e1b-e6e4da4d9bb0" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="60000"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="scheduler started" doc:id="06ad4481-ef0d-4d29-b480-2758c2852f0e" message="scheduler started"/>
+		<http:request method="GET" doc:name="Mocking-INGENIUM-serever" doc:id="cfe368ef-cd3d-4a96-98f5-60bcabb65181" config-ref="HTTP_Request_configuration" outputMimeType="application/json" url="http://localhost:8081/api/getIngeniumDetails">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"Key" : "Value"
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Response-from INGENIUM" doc:id="47f69cb9-4ea6-47fd-870f-727e9729dba6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="payload" doc:id="404ff06b-6bcd-4433-ad8a-7b9825413503" message="#[payload]"/>
+	</flow>
+</mule>

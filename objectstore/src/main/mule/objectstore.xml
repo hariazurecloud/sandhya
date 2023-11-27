@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2d95eee2-4822-4f1f-9a0c-d36134b4d0a6" basePath="/test" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<flow name="objectstoreFlow" doc:id="a56ce8cd-da18-4bcb-b33e-d744e3171ba7" >
+		<http:listener doc:name="Listener" doc:id="e7d60be8-af41-480c-8887-c4ddc9181738" config-ref="HTTP_Listener_config" path="/object store example"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="2a14262c-9037-4bc7-8572-8a801a345262" />
+	
+</flow>
+	
+	
+	</mule>

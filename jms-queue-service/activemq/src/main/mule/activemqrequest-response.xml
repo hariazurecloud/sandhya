@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<flow name="activemqrequest-responseFlow" doc:id="796f3bab-fab9-40ef-890c-0cb9b5c2e866" >
+		<http:listener doc:name="Listener" doc:id="a6d292a0-eed1-448a-b719-eac115571441" config-ref="HTTP_Listener_config_GLOBAL" path="/activemqreq-res"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9fed3a26-4757-42c5-94dc-7df8d5b57fc4" message='#["started"]'/>
+		<jms:publish-consume doc:name="Publish consume" doc:id="7b091b17-9008-45bf-9603-5eb2cdba67c7" config-ref="JMS_Config" destination="ActiveMQ_Queue02">
+			<jms:message outboundContentType="application/json" >
+				<jms:reply-to destination="ActiveMQ_Queue02_res" />
+			</jms:message>
+			<jms:publish-configuration persistentDelivery="true"/>
+			<jms:consume-configuration inboundContentType="application/json" maximumWait="2" maximumWaitUnit="MINUTES"/>
+		</jms:publish-consume>
+		<logger level="INFO" doc:name="Logger" doc:id="960c588d-b87d-4986-926d-230976636e68" message='#["ended"]'/>
+	</flow>
+	<flow name="activemqrequest-responseFlow1" doc:id="4dbec002-e5a4-4747-a3f1-27eecfd28572" >
+		<jms:listener doc:name="On New Message" doc:id="17496a23-faae-461e-93de-189c41a1fd75" config-ref="JMS_Config" destination="ActiveMQ_Queue02" inboundContentType="application/json" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+			<jms:response >
+				<jms:reply-to destination="ActiveMQ_Queue02_res" />
+			</jms:response>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="17179b8d-ebd5-47ba-ab2a-8ba03d537d6f" message='#[payload]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="1bb9a1d2-ac9d-4536-9015-ddfeb7ea918a" message="#[payload]"/>
+	</flow>
+</mule>

@@ -1,0 +1,20 @@
+#%RAML 1.0
+title: PolicyDetails
+mediaType:
+  - application/xml
+protocols:
+  - HTTP
+types: 
+ postPolicyDetailsRequest: !include dataTypes/dataType.raml
+/createNewPolicy:
+  post:
+    body:
+      type: postPolicyDetailsRequest
+    responses:
+      "200":
+        body:
+          application/xml:
+            example: Example
+            type: string
+    securedBy: []
+securedBy: []

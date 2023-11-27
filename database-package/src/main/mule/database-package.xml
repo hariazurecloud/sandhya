@@ -1,0 +1,42 @@
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="98aec4b6-f10a-45d2-8240-ae21fb9cca80">
+<http:listener-connection host="0.0.0.0" port="8081"/>
+</http:listener-config>
+<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="a3a2981b-2344-4356-b7d5-52becb6e4081">
+<http:request-connection host="localhost" port="8082"/>
+</http:request-config>
+<flow name="process-api-program-3Flow" doc:id="3cef55ba-f964-40a2-88fd-017a04f4508b">
+<http:listener doc:name="Listener" doc:id="4aa87fd1-b9fe-4e08-a768-48fc1ab90715" config-ref="HTTP_Listener_config" path="/processData"/>
+<logger level="INFO" doc:name="Logger" doc:id="9b75c229-199d-4237-ac1c-fd1891973665" message="start the process API"/>
+<set-variable value="#[payload]" doc:name="Set Variable" doc:id="8497ce7e-1567-4d00-b4ae-8f9b7fd7f651" variableName="SORT_KEY"/>
+<ee:transform doc:name="Transform Message" doc:id="9608fe90-b2e6-4fff-b8b0-704c2abe5509">
+<ee:message>
+<ee:set-payload><![CDATA[ %dw 2.0 output application/json 
+ var search = vars.SORT_KEY.searchInput 
+ var orderByInput = vars.SORT_KEY.orderBy
+  var directionInput = vars.SORT_KEY.direction
+   --- 
+  "query": "SELECT * FROM customers.orders WHERE (orderNumber LIKE '%" ++ search ++"'" ++ " or" ++ " InvoiceNumber LIKE '%" ++ search ++ "') ORDER BY "++ orderByInput ++" "++ directionInput ++" " ]]>
+</ee:set-payload>
+</ee:message>
+</ee:transform>
+<logger level="INFO" doc:name="Logger" doc:id="2ecd008d-45a0-4fa3-a321-1a6d0e5f32a9" message="#[payload]"/>
+<try doc:name="Try" doc:id="74adfb32-98fb-472d-a34b-a312e44adcf3">
+<http:request method="POST" doc:name="Request" doc:id="1c66e500-c6f0-43c4-95d4-691ae1df2af2" url="http://localhost:8082/customer/query" responseTimeout="60000" config-ref="HTTP_Request_configuration"> </http:request>
+<ee:transform doc:name="Transform Message" doc:id="86573125-ed40-4eaa-a73c-098d0313361d">
+<ee:message>
+<ee:set-payload><![CDATA[ %dw 2.0 output application/json 
+ ---
+  payload ]]>
+</ee:set-payload>
+</ee:message>
+</ee:transform>
+<error-handler>
+<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="963ec07c-ccc8-4fcd-a3da-0d2507b5e2d6" type="ANY">
+<logger level="INFO" doc:name="Logger" doc:id="5d88470c-435a-4dde-80bd-0e96e8ac31bc" message="#[error.description]"/>
+</on-error-propagate>
+</error-handler>
+</try>
+<logger level="INFO" doc:name="Logger" doc:id="8a275809-c81a-4363-9fb5-c73aa530d7c8" message="end the process API flow"/>
+</flow>
+</mule>

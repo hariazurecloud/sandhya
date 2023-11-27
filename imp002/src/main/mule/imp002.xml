@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="ef12ffbc-a132-4faa-9f66-3ad3b6cc0c0f" >
+		<http:request-connection host="ingenium-mock.centralindia.cloudapp.azure.com" />
+	</http:request-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="803725a1-e5b4-4c1a-a491-be25ef15d79e" >
+		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
+	</db:config>
+	<configuration doc:name="Configuration" doc:id="69b8b4a6-241f-4143-becf-6071f3ec4563" defaultErrorHandler-ref="global_error_handler" />
+	<flow name="impairments-responseFlow" doc:id="2382a63c-ed44-45b4-8409-4392912faaf0" >
+		<scheduler doc:name="pollResponseFrom IMP" doc:id="07a05545-1487-45b9-a813-b8e30849d58f" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="scheduler has started" doc:id="0f8d6ecc-1de1-40e1-996b-1e0b94290448" message="scheduler has started" />
+		<db:select doc:name="SelectDataWithawaitingForResponse" doc:id="4a517825-795d-45b1-af3f-ec1784777321" config-ref="Database_Config">
+			<db:sql><![CDATA[select TransRefGUID,RequestType from UWProToGG.Transcations where Message =:Message ]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	 Message: "awaitingForResponse",
+	 
+	
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="FilterPayload" doc:id="d0662b6b-7829-4e3d-98fd-aa6d75df3b65">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter ((item, index) -> item.RequestType == "IMP") ]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+		<foreach doc:name="For Each" doc:id="2f942776-6bb0-4291-adc3-8a461c5a93b1" >
+			<set-variable value="#[payload.RequestType]" doc:name="Set Variable" doc:id="82f8e026-c72d-4333-a07b-5695264f4e60" variableName="RequestCheck" />
+			<choice doc:name="checkForImp Data" doc:id="88940ed0-0111-4bd7-bbca-1e7495f90e5c">
+			<when expression='#[vars.RequestCheck == "IMP"]'>
+				<logger level="INFO" doc:name="No data pending in database for Getting Response for IMP" doc:id="47141336-7c9f-4cde-8de3-c409b5fcc06a" message="No data pending in database for Getting Response for IMP" />
+					<db:update doc:name="UpdateMessage---&gt;completed" doc:id="07967dd8-a1e0-4c4d-b127-2300a5335be4" config-ref="Database_Config">
+				<db:sql><![CDATA[update UWProToGG.Transcations  set  LastExecuted= :LastExecuted, WasProcessed= :WasProcessed, Message= :Message, RequestStatus= :RequestStatus where TransRefGUID= :TransRefGUID
+]]></db:sql>
+				<db:input-parameters><![CDATA[#[{
+    LastExecuted: now(),
+    WasProcessed: "1", 	
+    Message: "completed", 
+    TransRefGUID: payload.TransRefGUID,
+    RequestStatus: "completed"
+
+
+    }]]]></db:input-parameters>
+			</db:update>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="2bec2027-5ddb-4802-aea3-b0c846b77ec3" message="No data available with awaiting for response for impairments" />
+
+			</otherwise>
+		
+</choice>
+		</foreach>
+	
+</flow>
+</mule>

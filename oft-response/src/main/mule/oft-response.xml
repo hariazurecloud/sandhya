@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+   xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+      <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b579e5ee-710d-4aae-9a3b-a579b92aa780" >
+            <http:listener-connection host="0.0.0.0" port="8082" />
+      </http:listener-config>
+      <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="4709a0c8-22f4-4a94-ab66-2f46f2e07894" >
+            <http:request-connection protocol="HTTPS" connectionIdleTimeout="60000">
+                  <http:authentication >
+                        <http:basic-authentication username="mwusr_api_tst" password="Today123" />
+                  </http:authentication>
+            </http:request-connection>
+      </http:request-config>
+      <file:config name="File_Config" doc:name="File Config" doc:id="9c551e17-93fe-4c66-83d1-97b5edf293a1" >
+		<file:connection workingDir="C:\Users\sandhya.a\Videos" />
+	</file:config>
+	<flow name="oft-responseFlow" doc:id="93093b0b-0695-40cb-8942-3b2f0399f131" >
+            <http:listener doc:name="Listener" doc:id="20e1cd5c-c773-4106-b2b3-355f8854a146" config-ref="HTTP_Listener_config" path="/oft">
+                  <ee:repeatable-file-store-stream bufferUnit="MB" />
+            </http:listener>
+            <logger level="INFO" doc:name="Logger" doc:id="71b7ef45-7d2d-47e1-aa70-72138c7af3dd" message="Flow "/>
+            <set-variable value='#[%dw 2.0&#10;    output application/java&#10;    ---&#10;    payload.TXLife.TXLifeRequest.TransRefGUID  ++ ".xml"]' doc:name="Set Variable" doc:id="e17044e3-268d-4485-ab39-319257dfd136" variableName="originalXMLpayload"/>
+            <set-variable value="#[payload]" doc:name="Set Variable" doc:id="15ddd6db-daf9-4363-8550-d70b318404df" variableName="id"/>
+		<file:write doc:name="Write" doc:id="80003a0a-0e1b-44a4-b9ec-6143f4051e97" config-ref="File_Config" path="#[vars.originalXMLpayload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="c2aa3096-21bb-46a0-b7fe-c7bcf88fbfd4">
+                  <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var input2=payload.TXLife.TXLifeRequest.OLifE.*Relation filter ((item, index) -> item.RelationRoleCode.@tc == "32") map ((item, index) -> item.@RelatedObjectID)
+
+var input3= payload.TXLife.TXLifeRequest.OLifE.*Party
+---
+input2 map ((id, index) ->{
+     id: ((input3 filter $[@"id"] == id)[0].KeyedValue.KeyValue)
+} )
+  ]]></ee:set-payload>
+                  </ee:message>
+            </ee:transform>
+            <set-variable value="#[payload]" doc:name="Set Variable" doc:id="e7e64d81-a2e2-4e12-9de0-3fe3c3bb80fc" variableName="clientId"/>
+		<http:request method="GET" doc:name="Request" doc:id="8bf08b45-9c15-4247-be25-5201baee134b" url="https://gssl-tst.outsystemsenterprise.com/UWProAPI/rest/GetOFTData/GetOFTData?MasterID=1699744" config-ref="HTTP_Request_configuration" outputMimeType="application/json">
+            </http:request>
+            <ee:transform doc:name="Transform Message" doc:id="c1d10592-e26f-42fa-bd9b-fc2d11c76236">
+                  <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+
+output application/xml
+
+//var input1="Req_"++(payload.TXLife.TXLifeRequest.OLifE.Holding.Policy.RequirementInfo.RequirementInfoUniqueID)
+
+fun ValueCode(value) =
+
+    if (value == "46") "In Range"
+
+    else if (value == "36") "Non Reactive"
+
+    else if (value == "2") "Negative"
+
+    else " "
+
+   
+
+---
+
+  Risk @(xmlns: ""): {
+
+      MedicalExam:{
+
+          Examdate:payload.Dataset[0].ExamDate,
+
+          FirstDiastolicBPReading: 0,
+
+            FirstSystolicBPReading: 0,
+
+            FirstPulseReading: 0,
+
+            LabSlipTicketNum: 0
+
+            },
+
+           LabTesting @(id: payload.Dataset[0].OftNum): {
+
+            TestUpdateDate: payload.Dataset[0].TestDate,
+
+            TestDate: payload.Dataset[0].TestDate,
+           
+          (payload.Dataset map ((item, index) ->{
+            LabTestResult @(RequirementInfoID:item.ValueCode,id: item.OftLabTestResultId):{
+
+              TestCode @(tc: item.TestCode):item.TestName,
+
+            ProviderTestCode:item.ProviderTestCode,
+           QualitativeResult @(id: item.OftLabTestResultId):{
+
+              ValueCode: (item.Result)
+
+           },
+
+           ReferenceRange:{
+
+          MaxValue: (item.MaxValue)
+
+           }
+           },
+        }))
+        },
+  }
+
+
+
+]]></ee:set-payload>
+                  </ee:message>
+            </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="05dc1747-8803-4c6a-84ad-11ec369c51ea" message="#[payload]"/>
+            <set-variable value="#[%dw 2.0&#10;    output application/json&#10;    ---&#10;    payload]" doc:name="Set Variable" doc:id="693a4b6b-e2f9-4133-8196-341bc61f3c66" variableName="riskNode" />
+		<file:read doc:name="Read" doc:id="c4f071a7-fb5c-47c9-8e8a-71209205a8cb" config-ref="File_Config" path="C:\Users\sandhya.a\Videos\479CB162-B0B6-4AED-8429-BAAB4B9AEFF4.xml"/>
+		<ee:transform doc:name="Transform Message" doc:id="f6475934-9d6f-409b-9671-79f5e8d9dac6">
+                  <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+vars.originalXMLpayload]]></ee:set-payload>
+                  </ee:message>
+            </ee:transform>
+            <logger level="INFO" doc:name="Logger" doc:id="6e061e14-d0af-445f-b701-69d5190492e2" message="#[payload]" />
+      </flow>
+</mule>
+

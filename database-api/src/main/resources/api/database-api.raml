@@ -1,0 +1,58 @@
+#%RAML 1.0
+title: Database-API
+
+mediaType: 
+- application/xml
+- application/json
+
+/update:
+  post:
+  
+    body:
+      application/xml:
+      application/json:
+        description: update data from database
+        example: 
+          
+        
+    responses:
+      200:
+        body:
+          application/json:
+            example: "sucessfully updated the available Data"
+              
+/insert:
+  post:
+  
+    body:
+      application/xml:
+      application/json:
+        description: insert data from database
+        example: 
+          
+        
+    responses:
+      200:
+        body:
+          application/json:
+            example: "sucessfully inserted the available Data"          
+
+
+
+/select:
+  post:
+  
+    body:
+      application/xml:
+      application/json:
+        description: select data from database
+        example: 
+          
+        
+    responses:
+      200:
+        body:
+          application/json:
+            example: "sucessfully selected the available Data"
+ 
+             

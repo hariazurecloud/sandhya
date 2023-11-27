@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:sap="http://www.mulesoft.org/schema/mule/sap"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:enterpriselogger="http://www.mulesoft.org/schema/mule/enterpriselogger"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/enterpriselogger http://www.mulesoft.org/schema/mule/enterpriselogger/current/mule-enterpriselogger.xsd
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+	<!-- SAP FICO Connector -->
+	<sap:connector name="sapFicoGlblConn" jcoAsHost="${sap2es.fico.instance.host}"
+		jcoUser="${sap2es.fico.instance.user}" jcoPasswd="${sap2es.fico.instance.password}"
+		jcoSysnr="${sap2es.fico.instance.sys}" jcoClient="${sap2es.fico.instance.client}"
+		validateConnections="true" doc:name="sapFicoGlblConn" jcoPoolCapacity="${sap2es.fico.jco.pool.capacity}" jcoPeakLimit="${sap2es.fico.jco.peak.limit}"/>
+
+
+	<!-- SAP2ES module FICO main Flow -->
+
+	<!-- Active-Mq connector -->
+	<jms:activemq-connector name="active-mq"
+		specification="1.1" username="${sap2es.fico.amq.username}" password="${sap2es.fico.amq.password}"
+		brokerURL="${sap2es.fico.amq.broker.url}" validateConnections="true"
+		doc:name="Active MQ" maxRedelivery="${sap2es.fico.amq.redelivery}" numberOfConsumers="${sap2es.fico.activemq.consumers}" persistentDelivery="${sap2es.fico.amq.persistentDelivery}">
+		<reconnect-forever frequency="${sap2es.fico.amq.reconnection.frequency}"
+			blocking="false" />
+	</jms:activemq-connector>
+
+    
+    <flow name="mainFicoIdocReceiverFlow" 
+		processingStrategy="synchronous"
+		doc:description="This flow will receive IDOCs from SAP FICO instance and push them into intermal JMS topic ">
+		<sap:inbound-endpoint name="recieve-idoc-from-fico"
+			connector-ref="sapFicoGlblConn" type="idoc" rfcType="trfc"
+			xmlVersion="2" outputXml="true" jcoGwHost="${sap2es.fico.instance.host}"
+			jcoGwService="${sap2es.fico.instance.service}" jcoProgramId="${sap2es.fico.instance.programId}"
+			 responseTimeout="10000" doc:name="recieve-idoc-from-fico"
+			doc:description="SAP FICO instance which will receive IDocs.This inbound 
+ 			endpoint's output would be IDOC in xml" />
+		<flow-ref name="capture-enterprise-message-header-details" doc:name="flow-ref-capture-em-header"/>
+		<enterpriselogger:info config-ref="SAP2esFicoLogger"
+			doc:name="logs-module-started"
+			logMessage="SAP FICO has received IDOC for processing"
+			processState="102005101"
+			doc:description="This component will log information about message's root id " />
+		<vm:outbound-endpoint exchange-pattern="one-way"
+			path="${sap2es.fico.vm.route.idoc.for.em}" doc:name="route-idoc-to-create-enterprise-message"
+			connector-ref="SAP2esFicoVMGlobalConn"
+			doc:description="queue used to route idoc to create-enterprise-message at the same time store idoc in internal topic">
+			<wire-tap>
+				<jms:outbound-endpoint topic="${sap2es.fico.internal.topic}"
+					connector-ref="active-mq" doc:name="internal-jms-topic"
+					doc:description="internal topic which stores all the received idoc xml(s)" />
+			</wire-tap>
+		</vm:outbound-endpoint>
+		<exception-strategy ref="glblSap2esFicoChoiceExceptionStrategy"
+			doc:name="Reference Exception Strategy" />
+	</flow>
+    <flow name="capture-enterprise-message-header-details"  processingStrategy="synchronous">
+        <message-properties-transformer overwrite="true" scope="invocation" doc:name="capture-idoc-parameters">
+            <add-message-property key="IDOCTYP"	value="#[xpath://IDOC//EDI_DC40//IDOCTYP]" />
+            <add-message-property key="DOCNUM" value="#[xpath://IDOC//EDI_DC40//DOCNUM]"/>
+            <add-message-property key="MESCOD" value="#[xpath://IDOC//EDI_DC40//MESCOD]"/>
+            <add-message-property key="MESFCT" value="#[xpath://IDOC//EDI_DC40//MESFCT]"/>
+            <add-message-property key="IDOC_MESSAGE_ID" value="#[xpath://IDOC//Z1ZAUDIT//UNIQUE_ID]"/>
+        </message-properties-transformer>
+        <component class="com.umgi.enterpriseservices.sap2esgateway.fico.AllocateEnterpriseMessageProperties" doc:name="allocate-em-properties"/>
+        <exception-strategy ref="glblSap2esFicoChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+
+</mule>
+
+

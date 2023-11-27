@@ -1,0 +1,278 @@
+<TXLife xmlns="http://ACORD.org/Standards/Life/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ACORD.org/Standards/Life/2 TXLife2.21.90.xsd">
+<UserAuthRequest>
+<UserLoginName>StoneRiver</UserLoginName>
+<UserPswd>
+<CryptType>NONE</CryptType>
+<Pswd/>
+</UserPswd>
+<UserDate>2023-04-05</UserDate>
+<UserTime>09:02:28</UserTime>
+<VendorApp>
+<VendorName VendorCode="">StoneRiver</VendorName>
+<AppName>UWPro</AppName>
+</VendorApp>
+</UserAuthRequest>
+<TXLifeRequest>
+<TransRefGUID>479CB162-B0B6-4AED-8429-BAAB4B9AEFF4</TransRefGUID>
+<TransType tc="121">General Requirements Order Request</TransType>
+<TransExeDate>2023-04-05</TransExeDate>
+<TransExeTime>09:02:28</TransExeTime>
+<TransMode tc="2">ORIGINAL</TransMode>
+<NoResponseOK tc="0">False</NoResponseOK>
+<TestIndicator tc="1">true</TestIndicator>
+<OLifE>
+<SourceInfo>
+<CreationDate>2023-04-05</CreationDate>
+<CreationTime>09:02:28</CreationTime>
+<SourceInfoName>UWPro</SourceInfoName>
+<SourceInfoComment>Sapiens</SourceInfoComment>
+</SourceInfo>
+<Holding id="HOLDING_3913726">
+<Policy CarrierPartyID="PARTY_2871602">
+<PolNumber>5003604190</PolNumber>
+<LineOfBusiness tc="1">Life</LineOfBusiness>
+<CarrierCode>GLOC</CarrierCode>
+<PaymentMode tc="4">Monthly</PaymentMode>
+<PaymentAmt>494.87</PaymentAmt>
+<Life>
+<Coverage id="COVERAGE_1">
+<PlanName>CRIEV1 - Life Evol Rej TT</PlanName>
+<ProductCode>CRIEV1</ProductCode>
+<LifeCovStatus tc="8">Pending</LifeCovStatus>
+<IndicatorCode tc="1">Base</IndicatorCode>
+<CurrentAmt>600000</CurrentAmt>
+<InitCovAmt>600000</InitCovAmt>
+<LifeParticipant PartyID="1699744">
+<LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+<TobaccoPremiumBasis tc="1">Non Smoker</TobaccoPremiumBasis>
+<UnderwritingClass tc="2147483647">1 - Non-Smoker</UnderwritingClass>
+</LifeParticipant>
+</Coverage>
+<Coverage id="COVERAGE_2">
+<PlanName>ADDEV1 - Acc Death &amp; Dis- Evo TT</PlanName>
+<ProductCode>ADDEV1</ProductCode>
+<LifeCovStatus tc="8">Pending</LifeCovStatus>
+<IndicatorCode tc="1">Base</IndicatorCode>
+<CurrentAmt>200000</CurrentAmt>
+<InitCovAmt>200000</InitCovAmt>
+<LifeParticipant PartyID="1699744">
+<LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+<TobaccoPremiumBasis tc="1">Non Smoker</TobaccoPremiumBasis>
+<UnderwritingClass tc="2147483647">1 - Non-Smoker</UnderwritingClass>
+</LifeParticipant>
+</Coverage>
+<Coverage id="COVERAGE_3">
+<PlanName>WPEV 1 - Waiver of Premium Evolution</PlanName>
+<ProductCode>WPEV 1</ProductCode>
+<LifeCovStatus tc="8">Pending</LifeCovStatus>
+<IndicatorCode tc="1">Base</IndicatorCode>
+<CurrentAmt>0</CurrentAmt>
+<InitCovAmt>0</InitCovAmt>
+<LifeParticipant PartyID="1699744">
+<LifeParticipantRoleCode tc="1">Primary Insured</LifeParticipantRoleCode>
+<TobaccoPremiumBasis tc="1">Non Smoker</TobaccoPremiumBasis>
+<UnderwritingClass tc="2147483647">1 - Non-Smoker</UnderwritingClass>
+</LifeParticipant>
+</Coverage>
+</Life>
+<ApplicationInfo>
+<TrackingID>3910455</TrackingID>
+<SignedDate>2023-04-01</SignedDate>
+<PrefLanguage tc="9">English</PrefLanguage>
+</ApplicationInfo>
+<RequirementInfo FulfillerPartyID="Fulfiller_1" id="Req_3913753" AppliesToPartyID="1699744" RequesterPartyID="PARTY_2871602" RequestorContactPartyID="PARTY_2930700">
+<ReqCode tc="2147483647">OFT</ReqCode>
+<RequirementInfoUniqueID>3913753</RequirementInfoUniqueID>
+<ReqStatus tc="1">Pending</ReqStatus>
+<RequestedDate>2023-04-05</RequestedDate>
+</RequirementInfo>
+</Policy>
+</Holding>
+<Party id="90002">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<PartySysKey>90002</PartySysKey>
+<FullName>Larry Chew</FullName>
+<GovtID/>
+<Person>
+<FirstName>Larry</FirstName>
+<LastName>Chew</LastName>
+</Person>
+<Address>
+<AddressTypeCode tc="2">Business</AddressTypeCode>
+<Line1>L.P #1383, Lot E</Line1>
+<Line2>Nancy Drive</Line2>
+<City>Dow Village</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+</Address>
+<Phone>
+<PhoneTypeCode tc="19">Fax</PhoneTypeCode>
+<AreaCode/>
+<DialNumber/>
+</Phone>
+<Phone>
+<PhoneTypeCode tc="2">Business</PhoneTypeCode>
+<AreaCode/>
+<DialNumber/>
+</Phone>
+<KeyedValue>
+<KeyName>ClientId</KeyName>
+<KeyValue>90002</KeyValue>
+</KeyedValue>
+</Party>
+<Party id="Fulfiller_1">
+<PartyTypeCode tc="2">Organization</PartyTypeCode>
+<FullName>CRL</FullName>
+<Organization>
+<OrgForm tc="23">Corporation</OrgForm>
+</Organization>
+</Party>
+<Party id="Axxxx3">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<PartySysKey>Axxxx3</PartySysKey>
+<FullName>Gail Singh</FullName>
+<Person>
+<FirstName>Gail</FirstName>
+<LastName>Singh</LastName>
+</Person>
+<Producer>
+<CarrierAppointment>
+<CompanyProducerID>Axxxx3</CompanyProducerID>
+</CarrierAppointment>
+</Producer>
+<Address>
+<AddressTypeCode tc="2">Business</AddressTypeCode>
+<Line1>#41 Teak Circular</Line1>
+<Line2>La Couroupita</Line2>
+<City>El Dorado</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+</Address>
+<Phone>
+<PhoneTypeCode tc="19">Fax</PhoneTypeCode>
+<AreaCode/>
+<DialNumber/>
+</Phone>
+<Phone>
+<PhoneTypeCode tc="2">Business</PhoneTypeCode>
+<AreaCode/>
+<DialNumber/>
+</Phone>
+<KeyedValue>
+<KeyName>ClientId</KeyName>
+<KeyValue>Axxxx3</KeyValue>
+</KeyedValue>
+</Party>
+<Party id="1699744">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<PartySysKey>1699744</PartySysKey>
+<FullName>Kennedi Geiger</FullName>
+<ResidenceCountry tc="868">Trinidad and Tobago</ResidenceCountry>
+<Person>
+<FirstName>Kennedi</FirstName>
+<LastName>Geiger</LastName>
+<MarStat tc="1">Married</MarStat>
+<Gender tc="1">Male</Gender>
+<BirthDate>1986-10-23</BirthDate>
+<Citizenship tc="868">Trinidad and Tobago</Citizenship>
+<EstGrossAnnualOtherIncome>385000</EstGrossAnnualOtherIncome>
+<EstSalary>385000</EstSalary>
+<SmokerStat tc="1">Never</SmokerStat>
+<DriversLicenseNum>87654345678</DriversLicenseNum>
+<BirthCountry tc="868">Trinidad and Tobago</BirthCountry>
+<OccupationType tc="2147483647">seismologist (oil/gas rigs)</OccupationType>
+</Person>
+<EMailAddress>
+<AddrLine>vinny_23@hotmail.com</AddrLine>
+</EMailAddress>
+<Address>
+<AddressTypeCode tc="1">Residence</AddressTypeCode>
+<Line1>76 Hightop Avenue</Line1>
+<Line2>Fitts Street</Line2>
+<City>Penal</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+</Address>
+<Phone>
+<PhoneTypeCode tc="12">Mobile</PhoneTypeCode>
+<AreaCode>612</AreaCode>
+<DialNumber>3456789</DialNumber>
+<PrefPhone tc="1">TRUE</PrefPhone>
+</Phone>
+<Phone>
+<PhoneTypeCode tc="1">Home</PhoneTypeCode>
+<AreaCode>343</AreaCode>
+<DialNumber>4321234</DialNumber>
+<PrefPhone tc="1">TRUE</PrefPhone>
+</Phone>
+<KeyedValue>
+<KeyName>ClientId</KeyName>
+<KeyValue>1699744</KeyValue>
+</KeyedValue>
+</Party>
+<Party id="EMPLOYER_3913724">
+<FullName>Sterling Siliver Corporation</FullName>
+<Address>
+<Line1>Independence Square , Port of Spain,</Line1>
+</Address>
+</Party>
+<Party id="PARTY_2930700">
+<PartyTypeCode tc="1">Person</PartyTypeCode>
+<Person>
+<FirstName>Eric</FirstName>
+<LastName>Hopkins</LastName>
+</Person>
+<EMailAddress>
+<AddrLine>eric.hopkins@myguardiangroup.com</AddrLine>
+</EMailAddress>
+</Party>
+<Party id="PARTY_2871602">
+<PartyTypeCode tc="2">Organization</PartyTypeCode>
+<FullName>Guardian Life of the Caribbean - Trinidad &amp; Tobago</FullName>
+<Address>
+<AddressTypeCode tc="2">Business</AddressTypeCode>
+<Line1>1 Guardian Drive</Line1>
+<Line2>Westmoorings</Line2>
+<City>Port of Spain</City>
+<AddressCountry>TRINIDADTOBAGO</AddressCountry>
+<AddressCountryTC tc="868">Trinidad and Tobago</AddressCountryTC>
+</Address>
+</Party>
+<Relation id="N100A1" RelatedObjectID="90002" OriginatingObjectID="HOLDING_3913726">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="2147483647">Agency</RelationRoleCode>
+</Relation>
+<Relation id="N100AC" RelatedObjectID="Axxxx3" OriginatingObjectID="HOLDING_3913726">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="11">Agent</RelationRoleCode>
+</Relation>
+<Relation id="N100B8" RelatedObjectID="1699744" OriginatingObjectID="HOLDING_3913726">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="8">Owner</RelationRoleCode>
+</Relation>
+<Relation id="N100C5" RelatedObjectID="1699744" OriginatingObjectID="HOLDING_3913726">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="31">Payer</RelationRoleCode>
+</Relation>
+<Relation id="N100D1" RelatedObjectID="1699744" OriginatingObjectID="HOLDING_3913726">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="32">Insured</RelationRoleCode>
+</Relation>
+<Relation id="RELATION_EMPLOYER_3" RelatedObjectID="EMPLOYER_3913724" OriginatingObjectID="1699744">
+<OriginatingObjectType tc="6">Party</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="7">Employer</RelationRoleCode>
+</Relation>
+<Relation id="N10542" RelatedObjectID="PARTY_2930700" OriginatingObjectID="HOLDING_3913726">
+<OriginatingObjectType tc="4">Holding</OriginatingObjectType>
+<RelatedObjectType tc="6">Party</RelatedObjectType>
+<RelationRoleCode tc="235">Case Manager</RelationRoleCode>
+</Relation>
+</OLifE>
+</TXLifeRequest>
+</TXLife>

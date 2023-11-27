@@ -1,0 +1,35 @@
+#%RAML 1.0 DataType
+    properties:
+      TXLife:
+        default: New Business
+        example: New Business
+        type: string
+        minLength: 12
+        maxLength: 30
+      TXLifeRequest:
+        description: TransRefGUID
+      TransRefGUID:
+        example: FD5D3D20-5401-4DE2-A3C4-EA06D17C176D
+        type: string
+      TransType:
+        type: string
+        xml:
+          attribute: true
+          name: tc
+      TransExeDate:
+        default: 2023-08-16
+        example: 2023-08-16
+        type: date-only
+      TransExeTime:
+        example: 05:30:15
+        type: time-only
+      OLifE:
+        description: SourceInfo
+        items:
+          example: SourceInfo
+          type: string
+        maxItems: 40
+        minItems: 10
+        uniqueItems: true
+
+ 
