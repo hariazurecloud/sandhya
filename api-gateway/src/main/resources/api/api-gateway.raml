@@ -1,0 +1,20 @@
+#%RAML 1.0
+title: API-GATEWAY
+
+mediaType: 
+- application/xml
+- application/json
+
+/transtype/{tc}:
+  post:
+    queryParameters:
+    description: transcation type of the file 
+    body:
+      application/json:
+      application/xml:
+
+    responses:
+      200:
+        body:
+          example: "data is retrived in API-GATEWAY"
+            
