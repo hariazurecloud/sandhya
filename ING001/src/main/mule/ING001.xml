@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		<db:my-sql-connection host="mulesoft-demo.mysql.database.azure.com" port="3306" user="techdev" password="P@ssw0rd" database="UWProToGG" />
 	</db:config>
 	<configuration doc:name="Configuration" doc:id="f2b19f61-60fa-4d57-ac2e-05511eb41235" defaultErrorHandler-ref="global_error_handler" />
-	<flow name="projectFlow" doc:id="b6c43cc8-d9c4-4ca2-aa3d-b2e70d3e0ad9" >
+	<flow name="projectFlow" doc:id="b6c478c8-d9c4-4ca2-aa3d-b2e70d3e0ad9" >
 		<http:listener doc:name="Listener" doc:id="f649a045-b66c-41cc-a9cf-8f7ee796af67" config-ref="HTTP_Listener_config" path="/createApplication"/>
 		<logger level="INFO" doc:name="Flow started" doc:id="1d3a30ca-574b-4e06-9c97-40430e63a577" message="Flow started"/>
 		<ee:transform doc:name="XmlToJsonConversion" doc:id="e7b088bb-517e-43ba-9a71-684e66b0ed77" >
