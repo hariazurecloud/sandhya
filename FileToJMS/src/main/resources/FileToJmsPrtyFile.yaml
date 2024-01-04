@@ -6,7 +6,7 @@ http:
    
 http_Req:
   host: "localhost"
-  port: "8089"
+  port: "8086"
   path: "/api/"
   
 http_Req_ApiGateway:
